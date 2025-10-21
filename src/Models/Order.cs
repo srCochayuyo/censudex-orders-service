@@ -8,7 +8,7 @@ namespace OrderService.src.Models
 {
     public class Order
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         public Guid UserId { get; set; }
 

@@ -1,0 +1,23 @@
+#Conecxion a docker para testing 
+services:
+  mysql:
+    # Imagen oficial de MySQL 8.0 
+    image: mysql:8.0
+
+    # Variables de entorno para configurar el usuario y base de datos
+    environment:
+      MYSQL_USER: ${MYSQL_USER}           # Usuario definido en .env
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}   # Contraseña definida en .env
+      MYSQL_DATABASE: ${MYSQL_DATABASE}   # Base de datos inicial
+      MYSQL_ROOT_PASSWORD: rootpassword   # Contraseña del usuario root
+
+    # Exposición de puertos
+    ports:
+      - "3307:3306" # Puerto local 3307 mapea al puerto 3306 del contenedor
+
+    # Volúmenes para persistencia de datos
+    volumes:
+      - mysql_data:/var/lib/mysql  # Mantiene los datos en el contenedor
+
+volumes:
+  mysql_data: # Volumen para persistencia de la base de datos MySQL 
