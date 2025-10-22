@@ -9,5 +9,7 @@ namespace OrderService.src.Interfaces
     public interface IOrderRepository
     {
         public Task<ResponseOrderDto> CreateOrder(CreateOrderDto request);
+
+        public Task<ResponseOrderDto?> GetOrderByIdorOrderNumber(Guid? OrderId, string? orderNumber);
     }
 }

@@ -24,7 +24,7 @@ namespace OrderService.src.Controller
         {
             try
             {
-            
+
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
@@ -41,7 +41,48 @@ namespace OrderService.src.Controller
             }
             catch (Exception e)
             {
-                
+
+                return StatusCode(500, new { message = e.Message });
+            }
+        }
+
+        [HttpGet("{Identifier}")]
+        public async Task<IActionResult> GetOrderByIdentifier(string Identifier)
+        {
+            try
+            {
+
+                Guid? orderId = null;
+                string? orderNumber = null;
+
+                if (Guid.TryParse(Identifier, out var guid))
+                {
+                    orderId = guid;
+                }
+                else
+                {
+                    orderNumber = Identifier;
+                }
+
+                var order = await _orderRepository.GetOrderByIdorOrderNumber(orderId, orderNumber);
+
+                if (order == null)
+                {
+                    return NotFound("Error: No se econtro el Pedido");
+                }
+
+                var result = new
+                {
+                    message = "Pedido obtenido con exito",
+                    Order = order
+                };
+
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+
                 return StatusCode(500, new { message = e.Message });
             }
         }

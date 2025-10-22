@@ -40,7 +40,7 @@ namespace OrderService.src.Repository
                 }).ToList()
             };
 
-            //Publicar evento en RabbitMQ
+            //TODO: Publicar evento en RabbitMQ
 
             await _context.Orders.AddAsync(OrderRequest);
             await _context.OrderItems.AddRangeAsync(OrderRequest.Items);
@@ -53,6 +53,29 @@ namespace OrderService.src.Repository
 
 
         //TODO: GET obtener order por id o por numero de pedido
+        public async Task<ResponseOrderDto?> GetOrderByIdorOrderNumber(Guid? OrderId, string? orderNumber)
+        {
+            var query = _context.Orders.Include(o => o.Items).AsQueryable();
+
+            Order? order = null;
+
+            if (OrderId != null)
+            {
+                order = await query.FirstOrDefaultAsync(o => o.Id == OrderId);
+            }
+
+            if (orderNumber != null)
+            {
+                order = await query.FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
+                
+            }
+
+            return order?.ToOrderResponse();
+            
+        }
+        
+
+        
 
         //TODO: PUT actualizar estado de un pedido (ADMIN)
 
