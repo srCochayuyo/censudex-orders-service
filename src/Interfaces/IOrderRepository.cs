@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using OrderService.src.Dto;
 
 namespace OrderService.src.Interfaces
 {
-    public interface IOrderInterface
+    public interface IOrderRepository
     {
-        
+        public Task<ResponseOrderDto> CreateOrder(CreateOrderDto request);
     }
 }

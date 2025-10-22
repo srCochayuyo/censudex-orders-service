@@ -35,8 +35,9 @@ namespace OrderService.src.Data.Migrations
                     b.Property<DateOnly>("CreateAt")
                         .HasColumnType("date");
 
-                    b.Property<int>("OrderNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("OrderStatus")
                         .IsRequired()

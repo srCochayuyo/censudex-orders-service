@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using OrderService.src.Data;
+using OrderService.src.Dto;
 using OrderService.src.Interfaces;
+using OrderService.src.Mappers;
+using OrderService.src.Models;
 
 namespace OrderService.src.Repository
 {
-    public class OrderRepository : IOrderInterface
+    public class OrderRepository : IOrderRepository
     {
         private readonly DBContext _context;
 
@@ -17,9 +21,36 @@ namespace OrderService.src.Repository
         }
 
 
-        //TODO: POST Crear Estacion (ADMIN)
+        //POST Crear orden
+        public async Task<ResponseOrderDto> CreateOrder(CreateOrderDto request)
+        {
+            var OrderRequest = new Order
+            {
+                UserId = request.UserId,
+                OrderNumber = CreateOrderNumber(),
+                Address = request.Address,
+                OrderStatus = "Pendiente",
+                CreateAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                Items = request.Items.Select(i => new OrderItem
+                {
+                    ProductId = i.ProductId,
+                    ProductName = i.ProductName,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice
+                }).ToList()
+            };
 
-        //TODO: Funcion para crar numero de pedido aleatorio sin repetirse
+            //Publicar evento en RabbitMQ
+
+            await _context.Orders.AddAsync(OrderRequest);
+            await _context.OrderItems.AddRangeAsync(OrderRequest.Items);
+
+            await _context.SaveChangesAsync();
+
+            var response = OrderRequest.ToOrderResponse();
+            return response;
+        }
+
 
         //TODO: GET obtener order por id o por numero de pedido
 
@@ -30,5 +61,30 @@ namespace OrderService.src.Repository
         //TODO: GET Obtener Historia historico de pedidos de un cliente, Filtros por ID o numero de pedido, por rango de fecha de cracion
         
         //TODO: GET obtener historicos de clientes con filtros id o numero de pedido, rango de fechas de cracion, id o nombre de cliente (ADMIN)
+
+        //TODO: Funcion para crar numero de pedido aleatorio sin repetirse
+        public string CreateOrderNumber()
+        {
+
+            string orderNumber = "";
+
+            Random random = new Random();
+
+            while (true)
+            {
+
+                int numberPart = random.Next(1000, 10000);
+
+                orderNumber = $"CEN-{numberPart}";
+
+                var exist =  _context.Orders.Any(o => o.OrderNumber == orderNumber);
+
+                if (!exist)
+                {
+                    return orderNumber;
+                }
+
+            }
+        }
     }
 }
