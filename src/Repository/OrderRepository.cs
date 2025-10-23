@@ -99,9 +99,14 @@ namespace OrderService.src.Repository
                 throw new Exception("Error: Pedido no encontrado");
             }
 
-            if(string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() == "enviado")
+            if (string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() == "enviado")
             {
                 throw new Exception("Error: El numero de seguimiento es requerido para cambiar el estado a Enviado");
+            }
+            
+            if(!string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() == "enviado" )
+            {
+                throw new Exception("Error: El número de seguimiento solo puede asignarse cuando el estado es Enviado.");
             }
 
             if (!string.IsNullOrWhiteSpace(request.TrackingNumber))
