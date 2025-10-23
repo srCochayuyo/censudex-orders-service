@@ -136,7 +136,7 @@ namespace OrderService.src.Controller
 
                 var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(OrderIdentifier);
 
-                var orders = await _orderRepository.GetAllOrdersUser(UserId, OrderId, OrderNumber,InitialDate,FinishDate);
+                var orders = await _orderRepository.GetAllOrdersUser(UserId, OrderId, OrderNumber, InitialDate, FinishDate);
 
                 var response = new
                 {
@@ -144,10 +144,10 @@ namespace OrderService.src.Controller
                     Orders = orders
                 };
 
-            return Ok(response);
+                return Ok(response);
 
 
-  
+
 
             }
             catch (Exception e)
@@ -160,6 +160,48 @@ namespace OrderService.src.Controller
 
         }
         
+        [HttpGet("Orders")]
+        public async Task<IActionResult> GetOrdersAdmin([FromQuery]string? UserIdentifier, [FromQuery] string? OrderIdentifier, [FromQuery] DateOnly? InitialDate, [FromQuery] DateOnly? FinishDate)
+        {
+
+            try
+            {
+                Guid? UserId = null;
+                string? UserName = null;
+
+                if (Guid.TryParse(UserIdentifier, out var guid))
+                {
+                    UserId = guid;
+
+                }
+                else
+                {
+                    UserName = UserIdentifier;
+                }
+
+
+                var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(OrderIdentifier);
+
+                var orders = await _orderRepository.GetAllOrdersAdmin(UserId,UserName, OrderId, OrderNumber,InitialDate,FinishDate);
+
+                var response = new
+                {
+                    message = "Lista de pedidos obtenida exitosamente",
+                    Orders = orders
+                };
+
+                return Ok(response);
+
+            }
+            catch (Exception e)
+            {
+
+                return StatusCode(500, new { message = e.Message });
+            }
+
+
+
+        }
         
 
 

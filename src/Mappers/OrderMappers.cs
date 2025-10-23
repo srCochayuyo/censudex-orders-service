@@ -62,13 +62,30 @@ namespace OrderService.src.Mappers
                 CreateAt = order.CreateAt,
                 UpdateAt = order.UpdateAt,
                 TotalPrice = order.TotalPrice,
-                Items = order.Items.Select(i =>  new ItemsOrderUserDto
+                Items = order.Items.Select(i => new ItemsOrderUserDto
                 {
                     ProductName = i.ProductName,
                     UnitPrice = i.UnitPrice,
                     Quantity = i.Quantity,
                     Subtotal = i.Subtotal
                 }).ToList()
+            };
+        }
+        
+        public static ResponseGetOrderAdminDto ToGetOrdersResponse(this Order order)
+        {
+            return new ResponseGetOrderAdminDto
+            {
+                Id = order.Id,
+                UserId = order.UserId,
+                UserName = order.UserName,
+                OrderNumber = order.OrderNumber,
+                Address = order.Address,
+                TrackingNumber = order.TrackingNumber,
+                OrderStatus = order.OrderStatus,
+                CreateAt = order.CreateAt,
+                UpdateAt = order.UpdateAt,
+                Items = order.Items
             };
         }
     }

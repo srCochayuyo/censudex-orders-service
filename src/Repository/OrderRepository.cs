@@ -101,7 +101,7 @@ namespace OrderService.src.Repository
                 throw new Exception("Error: El numero de seguimiento es requerido para cambiar el estado a Enviado");
             }
 
-            if (!string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() == "enviado")
+            if (!string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() != "enviado")
             {
                 throw new Exception("Error: El número de seguimiento solo puede asignarse cuando el estado es Enviado.");
             }
@@ -173,8 +173,27 @@ namespace OrderService.src.Repository
             return Orders;
         }
 
-        //TODO: GET obtener historicos de clientes con filtros id o numero de pedido, rango de fechas de cracion, id o nombre de cliente (ADMIN)
+        //GET obtener historicos de clientes con filtros id o numero de pedido, rango de fechas de cracion, id o nombre de cliente (ADMIN)
+        public async Task<List<ResponseGetOrderAdminDto>> GetAllOrdersAdmin(Guid? UserId,string? Username,Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly?FinishDate)
+        {
+            if (InitialDate.HasValue && FinishDate.HasValue && (InitialDate > FinishDate))
+            {
+                throw new Exception("Error: La fecha final debe ser mayor a la fecha inicial");
+            }
 
+            IQueryable<Order> query = _context.Orders; 
+
+            query = OrderHelpers.AdminFilter(query,UserId,Username, OrderId, OrderNumber, InitialDate, FinishDate);
+
+            var Orders = await query.Include(o => o.Items).Select(o => o.ToGetOrdersResponse()).ToListAsync();
+
+            if (Orders.Count == 0)
+            {
+                throw new Exception("Error: Sin Resultados");
+            }
+
+            return Orders;
+        }
 
 
         //Funcion para obtener ordern con identificador (pueder ser ID o Numero de Orden)

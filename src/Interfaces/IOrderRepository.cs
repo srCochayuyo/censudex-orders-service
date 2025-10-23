@@ -17,5 +17,7 @@ namespace OrderService.src.Interfaces
         public Task<ResponseChangeStateDto> CancelateOrder(Guid? OrderId, string? OrderNumber);
 
         public Task<List<ResponseGetOrderUserDto>> GetAllOrdersUser(Guid UserId, Guid? OrderId, string? OrderNumber, DateOnly? InitalDate, DateOnly? FinisDate);
+
+        public Task<List<ResponseGetOrderAdminDto>> GetAllOrdersAdmin(Guid? UserId, string? Username, Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly? FinishDate);
     }
 }
