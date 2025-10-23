@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OrderService.src.Data;
 using OrderService.src.Dto;
+using OrderService.src.Helper;
 using OrderService.src.Interfaces;
 using OrderService.src.Mappers;
 using OrderService.src.Models;
@@ -129,9 +130,18 @@ namespace OrderService.src.Repository
 
 
         //TODO: GET Obtener Historia historico de pedidos de un cliente, Filtros por ID o numero de pedido, por rango de fecha de cracion
-        public async Task<List<ResponseGetOrderDto>> GetAllOrdersUser(Guid UserId)
+        public async Task<List<ResponseGetOrderDto>> GetAllOrdersUser(Guid UserId,Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly?FinishDate)
         {
-            var Orders = await _context.Orders.Where(o => o.UserId == UserId).Include(o => o.Items).Select(o => o.ToGetOrderResponse()).ToListAsync();
+            if (InitialDate.HasValue && FinishDate.HasValue && (InitialDate > FinishDate))
+            {
+                throw new Exception("Error: La fecha final debe ser mayor a la fecha inicial");
+            }
+                
+            var query = _context.Orders.Where(o => o.UserId == UserId);
+
+            query = OrderHelpers.UserFilter(query, OrderId, OrderNumber, InitialDate, FinishDate);
+
+            var Orders = await query.Include(o => o.Items).Select(o => o.ToGetOrderResponse()).ToListAsync();
 
             if (Orders.Count == 0)
             {

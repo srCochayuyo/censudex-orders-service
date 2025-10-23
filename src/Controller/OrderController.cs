@@ -36,7 +36,7 @@ namespace OrderService.src.Controller
                 return Ok(new
                 {
                     message = "Pedido creado con exito",
-                    Estacion = result
+                    Order= result
                 });
             }
             catch (Exception e)
@@ -115,7 +115,7 @@ namespace OrderService.src.Controller
                 return Ok(new
                 {
                     message = "Estado de pedido modificado con exito",
-                    Estacion = NewState
+                    Order = NewState
                 });
 
             }
@@ -132,24 +132,24 @@ namespace OrderService.src.Controller
             try
             {
 
-                Guid? orderId = null;
-                string? orderNumber = null;
+                Guid? OrderId = null;
+                string? OrderNumber = null;
 
                 if (Guid.TryParse(Identifier, out var guid))
                 {
-                    orderId = guid;
+                    OrderId = guid;
                 }
                 else
                 {
-                    orderNumber = Identifier;
+                    OrderNumber = Identifier;
                 }
 
-                var cancelate = await _orderRepository.CancelateOrder(orderId, orderNumber);
+                var cancelate = await _orderRepository.CancelateOrder(OrderId, OrderNumber);
 
                 return Ok(new
                 {
                     message = "Pedido Canccelado con exito",
-                    Estacion = cancelate
+                    Order = cancelate
                 });
 
             }
@@ -161,18 +161,49 @@ namespace OrderService.src.Controller
         }
 
         [HttpGet("Orders")]
-        public async Task<IActionResult> GetOrdersUser(Guid UserId)
+        public async Task<IActionResult> GetOrdersUser(Guid UserId, [FromQuery] string? OrderIdentifier, [FromQuery] DateOnly? InitialDate, [FromQuery] DateOnly? FinishDate)
         {
-            var Orders = await _orderRepository.GetAllOrdersUser(UserId);
 
-            var response = new
+            try
             {
-                message = "Lista de pedidos obtenida exitosamente",
-                Estaciones = Orders
-            };
+
+                Guid? OrderId = null;
+                string? OrderNumber = null;
+
+                if (Guid.TryParse(OrderIdentifier, out var guid))
+                {
+                    OrderId = guid;
+                }
+                else
+                {
+                    OrderNumber = OrderIdentifier;
+                }
+
+                var orders = await _orderRepository.GetAllOrdersUser(UserId, OrderId, OrderNumber,InitialDate,FinishDate);
+
+                var response = new
+                {
+                    message = "Lista de pedidos obtenida exitosamente",
+                    Orders = orders
+                };
 
             return Ok(response);
+
+
+  
+
+            }
+            catch (Exception e)
+            {
+
+                return StatusCode(500, new { message = e.Message });
+            }
+
+
+
         }
+        
+        
 
 
 
