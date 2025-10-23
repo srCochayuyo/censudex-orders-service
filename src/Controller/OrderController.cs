@@ -131,7 +131,7 @@ namespace OrderService.src.Controller
         {
             try
             {
-                
+
                 Guid? orderId = null;
                 string? orderNumber = null;
 
@@ -158,6 +158,20 @@ namespace OrderService.src.Controller
 
                 return StatusCode(500, new { message = e.Message });
             }
+        }
+
+        [HttpGet("Orders")]
+        public async Task<IActionResult> GetOrdersUser(Guid UserId)
+        {
+            var Orders = await _orderRepository.GetAllOrdersUser(UserId);
+
+            var response = new
+            {
+                message = "Lista de pedidos obtenida exitosamente",
+                Estaciones = Orders
+            };
+
+            return Ok(response);
         }
 
 

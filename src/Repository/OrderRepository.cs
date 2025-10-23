@@ -126,9 +126,20 @@ namespace OrderService.src.Repository
             return orderRequest.ToChangeStateResponse(); ;
 
         }
-        
+
 
         //TODO: GET Obtener Historia historico de pedidos de un cliente, Filtros por ID o numero de pedido, por rango de fecha de cracion
+        public async Task<List<ResponseGetOrderDto>> GetAllOrdersUser(Guid UserId)
+        {
+            var Orders = await _context.Orders.Where(o => o.UserId == UserId).Include(o => o.Items).Select(o => o.ToGetOrderResponse()).ToListAsync();
+
+            if (Orders.Count == 0)
+            {
+                throw new Exception("Error: Usuario sin pedidos");
+            }
+
+            return Orders;
+        }
 
         //TODO: GET obtener historicos de clientes con filtros id o numero de pedido, rango de fechas de cracion, id o nombre de cliente (ADMIN)
 
