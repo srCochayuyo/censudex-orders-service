@@ -47,15 +47,14 @@ namespace OrderService.src.Repository
 
             await _context.SaveChangesAsync();
 
-            var response = OrderRequest.ToOrderResponse();
-            return response;
+            return OrderRequest.ToOrderResponse();
         }
 
 
         //GET obtener order por id o por numero de pedido
         public async Task<ResponseOrderDto?> GetOrderByIdentifier(Guid? OrderId, string? OrderNumber)
         {
-            var order = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber);
+            var order = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber,true);
 
             return order?.ToOrderResponse();
 
@@ -95,14 +94,39 @@ namespace OrderService.src.Repository
 
             await _context.SaveChangesAsync();
 
-            var response = order.ToChangeStateResponse();
-
-            return response;
+            return order.ToChangeStateResponse();;
 
 
         }
 
-        //TODO: PUT cancelar pedido cambiando el estado del mismo
+        //PUT cancelar pedido cambiando el estado del mismo
+        public async Task<ResponseChangeStateDto> CancelateOrder(Guid? OrderId, string? OrderNumber)
+        {
+            var order = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber);
+
+            if (order == null)
+            {
+                throw new Exception("Error: Pedido no encontrado");
+            }
+
+            if (order.OrderStatus == "Cancelado")
+            {
+                throw new Exception("Error: Pedido ya cancelado");
+            }
+
+            if(order.OrderStatus == "Enviado")
+            {
+                throw new Exception("Error: No es posible cancelar el pedido porque ya fue enviado.");
+            }
+
+            order.OrderStatus = "Cancelado";
+            order.UpdateAt = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            await _context.SaveChangesAsync();
+
+            return order.ToChangeStateResponse();;
+
+        }
         
 
         //TODO: GET Obtener Historia historico de pedidos de un cliente, Filtros por ID o numero de pedido, por rango de fecha de cracion

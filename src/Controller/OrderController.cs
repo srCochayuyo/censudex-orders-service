@@ -64,7 +64,7 @@ namespace OrderService.src.Controller
                     orderNumber = Identifier;
                 }
 
-                var order = await _orderRepository.GetOrderByIdorOrderNumber(orderId, orderNumber);
+                var order = await _orderRepository.GetOrderByIdentifier(orderId, orderNumber);
 
                 if (order == null)
                 {
@@ -116,6 +116,40 @@ namespace OrderService.src.Controller
                 {
                     message = "Estado de pedido modificado con exito",
                     Estacion = NewState
+                });
+
+            }
+            catch (Exception e)
+            {
+
+                return StatusCode(500, new { message = e.Message });
+            }
+        }
+
+        [HttpPut("Cancelate/{Identifier}")]
+        public async Task<IActionResult> CancelateOrder(string Identifier)
+        {
+            try
+            {
+                
+                Guid? orderId = null;
+                string? orderNumber = null;
+
+                if (Guid.TryParse(Identifier, out var guid))
+                {
+                    orderId = guid;
+                }
+                else
+                {
+                    orderNumber = Identifier;
+                }
+
+                var cancelate = await _orderRepository.CancelateOrder(orderId, orderNumber);
+
+                return Ok(new
+                {
+                    message = "Pedido Canccelado con exito",
+                    Estacion = cancelate
                 });
 
             }
