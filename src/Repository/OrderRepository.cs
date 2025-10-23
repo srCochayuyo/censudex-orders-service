@@ -52,12 +52,33 @@ namespace OrderService.src.Repository
         }
 
 
-        //GET obtener order por id o por numero de pedido
-        public async Task<ResponseOrderStateDto?> GetOrderByIdentifier(Guid? OrderId, string? OrderNumber)
+        //GET obtener Estado de pedido mediante User Id o Numero de pedido
+        public async Task<List<ResponseOrderStateDto>> GetOrderStateByIdentifier(Guid? Id, string? OrderNumber)
         {
-            var orderRequest = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber,true);
 
-            return orderRequest?.ToOrderStateResponse();
+            IQueryable<Order> query = _context.Orders;
+
+            if (Id != null)
+            {
+                query = query.Where(o => o.UserId == Id);
+            }
+
+            if (!string.IsNullOrWhiteSpace(OrderNumber))
+            {
+                query = query.Where(o => o.OrderNumber == OrderNumber);
+            }
+
+
+            var orders = await query.ToListAsync();
+            
+            if(orders.Count == 0)
+            {
+                throw new Exception("Error: Sin Resultados");
+            }
+
+
+
+            return orders.Select(o =>  o.ToOrderStateResponse()).ToList();
         }
 
 
@@ -167,7 +188,7 @@ namespace OrderService.src.Repository
 
             if (OrderId != null)
             {
-                return await query.FirstOrDefaultAsync(o => o.Id == OrderId.Value);
+                return await query.FirstOrDefaultAsync(o => o.Id == OrderId);
             }
 
             if (!string.IsNullOrWhiteSpace(OrderNumber))

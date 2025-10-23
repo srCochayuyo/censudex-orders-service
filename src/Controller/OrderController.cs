@@ -49,19 +49,14 @@ namespace OrderService.src.Controller
         }
 
         [HttpGet("{Identifier}")]
-        public async Task<IActionResult> GetOrderByIdentifier([Required] string Identifier)
+        public async Task<IActionResult> GetOrderStatusByIdentifier([Required] string Identifier)
         {
             try
             {
 
                 var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(Identifier);
 
-                var order = await _orderRepository.GetOrderByIdentifier(OrderId, OrderNumber);
-
-                if (order == null)
-                {
-                    return NotFound("Error: No se econtro el Pedido");
-                }
+                var order = await _orderRepository.GetOrderStateByIdentifier(OrderId, OrderNumber);
 
                 var result = new
                 {

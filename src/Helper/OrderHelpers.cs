@@ -9,14 +9,14 @@ namespace OrderService.src.Helper
     public class OrderHelpers
     {
 
-        public static (Guid? OrderId, string? OrderNumber) ParseOrderIdentifier(string? orderIdentifier)
+        public static (Guid? Id, string? OrderNumber) ParseOrderIdentifier(string? orderIdentifier)
         {
-            Guid? OrderId = null;
+            Guid? Id = null;
             string? OrderNumber = null;
 
             if (Guid.TryParse(orderIdentifier, out var guid))
             {
-                OrderId = guid;
+                Id = guid;
 
             }
             else
@@ -24,7 +24,7 @@ namespace OrderService.src.Helper
                 OrderNumber = orderIdentifier;
             }
 
-            return (OrderId, OrderNumber);
+            return (Id, OrderNumber);
 
         }
 
