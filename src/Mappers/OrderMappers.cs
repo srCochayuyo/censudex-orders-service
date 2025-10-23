@@ -38,11 +38,21 @@ namespace OrderService.src.Mappers
             };
         }
 
-        public static ResponseGetOrderDto ToGetOrderResponse(this Order order)
+        public static ResponseOrderStateDto ToOrderStateResponse(this Order order)
         {
-            return new ResponseGetOrderDto
+            return new ResponseOrderStateDto
             {
-                Id = order.Id,
+                OrderNumber = order.OrderNumber,
+                OrderStatus = order.OrderStatus,
+                UpdateAt = order.UpdateAt
+
+            };
+        }
+
+        public static ResponseGetOrderUserDto ToGetOrderUserResponse(this Order order)
+        {
+            return new ResponseGetOrderUserDto
+            {
                 OrderNumber = order.OrderNumber,
                 Address = order.Address,
                 OrderStatus = order.OrderStatus,
@@ -50,8 +60,13 @@ namespace OrderService.src.Mappers
                 CreateAt = order.CreateAt,
                 UpdateAt = order.UpdateAt,
                 TotalPrice = order.TotalPrice,
-                Items = order.Items
-
+                Items = order.Items.Select(i =>  new ItemsOrderUserDto
+                {
+                    ProductName = i.ProductName,
+                    UnitPrice = i.UnitPrice,
+                    Quantity = i.Quantity,
+                    Subtotal = i.Subtotal
+                }).ToList()
             };
         }
     }

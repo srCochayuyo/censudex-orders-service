@@ -53,11 +53,11 @@ namespace OrderService.src.Repository
 
 
         //GET obtener order por id o por numero de pedido
-        public async Task<ResponseGetOrderDto?> GetOrderByIdentifier(Guid? OrderId, string? OrderNumber)
+        public async Task<ResponseOrderStateDto?> GetOrderByIdentifier(Guid? OrderId, string? OrderNumber)
         {
             var orderRequest = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber,true);
 
-            return orderRequest?.ToGetOrderResponse();
+            return orderRequest?.ToOrderStateResponse();
         }
 
 
@@ -129,8 +129,8 @@ namespace OrderService.src.Repository
         }
 
 
-        //TODO: GET Obtener Historia historico de pedidos de un cliente, Filtros por ID o numero de pedido, por rango de fecha de cracion
-        public async Task<List<ResponseGetOrderDto>> GetAllOrdersUser(Guid UserId,Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly?FinishDate)
+        // GET Obtener Historia historico de pedidos de un cliente, Filtros por ID o numero de pedido, por rango de fecha de cracion
+        public async Task<List<ResponseGetOrderUserDto>> GetAllOrdersUser(Guid UserId,Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly?FinishDate)
         {
             if (InitialDate.HasValue && FinishDate.HasValue && (InitialDate > FinishDate))
             {
@@ -141,7 +141,7 @@ namespace OrderService.src.Repository
 
             query = OrderHelpers.UserFilter(query, OrderId, OrderNumber, InitialDate, FinishDate);
 
-            var Orders = await query.Include(o => o.Items).Select(o => o.ToGetOrderResponse()).ToListAsync();
+            var Orders = await query.Include(o => o.Items).Select(o => o.ToGetOrderUserResponse()).ToListAsync();
 
             if (Orders.Count == 0)
             {
@@ -152,6 +152,8 @@ namespace OrderService.src.Repository
         }
 
         //TODO: GET obtener historicos de clientes con filtros id o numero de pedido, rango de fechas de cracion, id o nombre de cliente (ADMIN)
+
+
 
         //Funcion para obtener ordern con identificador (pueder ser ID o Numero de Orden)
         private async Task<Order?> GetOrderByIdOrOrderNumber(Guid? OrderId, string? OrderNumber, bool includeItems = false)

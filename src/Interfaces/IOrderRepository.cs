@@ -10,12 +10,12 @@ namespace OrderService.src.Interfaces
     {
         public Task<ResponseCreateOrderDto> CreateOrder(CreateOrderDto request);
 
-        public Task<ResponseGetOrderDto?> GetOrderByIdentifier(Guid? OrderId, string? orderNumber);
+        public Task<ResponseOrderStateDto?> GetOrderByIdentifier(Guid? OrderId, string? orderNumber);
 
         public Task<ResponseChangeStateDto> ChangeStateOrder(Guid? OrderId, string? OrderNumber, ChangeStateDto request);
 
         public Task<ResponseChangeStateDto> CancelateOrder(Guid? OrderId, string? OrderNumber);
 
-        public Task<List<ResponseGetOrderDto>> GetAllOrdersUser(Guid UserId, Guid? OrderId, string? OrderNumber, DateOnly? InitalDate, DateOnly? FinisDate);
+        public Task<List<ResponseGetOrderUserDto>> GetAllOrdersUser(Guid UserId, Guid? OrderId, string? OrderNumber, DateOnly? InitalDate, DateOnly? FinisDate);
     }
 }

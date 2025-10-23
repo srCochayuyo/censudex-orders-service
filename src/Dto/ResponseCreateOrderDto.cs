@@ -10,6 +10,8 @@ namespace OrderService.src.Dto
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        public string UserName { get; set; } = string.Empty!;
+
         public string OrderNumber { get; set; } = string.Empty!;
 
         public string Address { get; set; } = string.Empty!;

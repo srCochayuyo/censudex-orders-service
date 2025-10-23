@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using OrderService.src.Models;
 
 namespace OrderService.src.Dto
 {
-    public class ResponseGetOrderDto
+    public class ResponseGetOrderUserDto
     {
-        public Guid Id { get; set; }
 
         public string OrderNumber { get; set; } = string.Empty!;
 
@@ -24,8 +22,6 @@ namespace OrderService.src.Dto
 
         public decimal TotalPrice { get; set; }
 
-        public List<OrderItem> Items { get; set; } = new();
-
-        
+        public List<ItemsOrderUserDto> Items { get; set; } = new();
     }
 }
