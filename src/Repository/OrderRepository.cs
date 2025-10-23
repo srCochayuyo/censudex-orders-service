@@ -52,23 +52,10 @@ namespace OrderService.src.Repository
         }
 
 
-        //TODO: GET obtener order por id o por numero de pedido
-        public async Task<ResponseOrderDto?> GetOrderByIdorOrderNumber(Guid? OrderId, string? OrderNumber)
+        //GET obtener order por id o por numero de pedido
+        public async Task<ResponseOrderDto?> GetOrderByIdentifier(Guid? OrderId, string? OrderNumber)
         {
-            var query = _context.Orders.Include(o => o.Items).AsQueryable();
-
-            Order? order = null;
-
-            if (OrderId != null)
-            {
-                order = await query.FirstOrDefaultAsync(o => o.Id == OrderId);
-            }
-
-            if (OrderNumber != null)
-            {
-                order = await query.FirstOrDefaultAsync(o => o.OrderNumber == OrderNumber);
-
-            }
+            var order = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber);
 
             return order?.ToOrderResponse();
 
@@ -78,21 +65,10 @@ namespace OrderService.src.Repository
 
 
         //TODO: PUT actualizar estado de un pedido (ADMIN)
-        public async Task<ResponseChangeStateDto> ChangeStateOrder(Guid? OrderId, string? OrderNumber,ChangeStateDto request)
+        public async Task<ResponseChangeStateDto> ChangeStateOrder(Guid? OrderId, string? OrderNumber, ChangeStateDto request)
         {
 
-            Order? order = null;
-
-            if (OrderId != null)
-            {
-                order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == OrderId);
-            }
-
-            if ( OrderNumber != null)
-            {
-                order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderNumber == OrderNumber);
-
-            }
+            var order = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber);
 
             if (order == null)
             {
@@ -103,8 +79,8 @@ namespace OrderService.src.Repository
             {
                 throw new Exception("Error: El numero de seguimiento es requerido para cambiar el estado a Enviado");
             }
-            
-            if(!string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() == "enviado" )
+
+            if (!string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() == "enviado")
             {
                 throw new Exception("Error: El número de seguimiento solo puede asignarse cuando el estado es Enviado.");
             }
@@ -113,7 +89,7 @@ namespace OrderService.src.Repository
             {
                 order.TrackingNumber = request.TrackingNumber;
             }
-            
+
             order.OrderStatus = request.OrderStatus;
             order.UpdateAt = DateOnly.FromDateTime(DateTime.UtcNow);
 
@@ -123,17 +99,41 @@ namespace OrderService.src.Repository
 
             return response;
 
-           
+
         }
 
         //TODO: PUT cancelar pedido cambiando el estado del mismo
+        
 
         //TODO: GET Obtener Historia historico de pedidos de un cliente, Filtros por ID o numero de pedido, por rango de fecha de cracion
-        
+
         //TODO: GET obtener historicos de clientes con filtros id o numero de pedido, rango de fechas de cracion, id o nombre de cliente (ADMIN)
 
+        //Funcion para obtener ordern con identificador (pueder ser ID o Numero de Orden)
+        private async Task<Order?> GetOrderByIdOrOrderNumber(Guid? OrderId, string? OrderNumber, bool includeItems = false)
+        {
+            IQueryable<Order> query = _context.Orders;
+
+            if (includeItems)
+            {
+                query = query.Include(o => o.Items);
+            }
+
+            if (OrderId != null)
+            {
+                return await query.FirstOrDefaultAsync(o => o.Id == OrderId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(OrderNumber))
+            {
+                return await query.FirstOrDefaultAsync(o => o.OrderNumber == OrderNumber);
+            }
+
+            return null;
+        }
+        
         //Funcion para crar numero de pedido aleatorio sin repetirse
-        public string CreateOrderNumber()
+        private string CreateOrderNumber()
         {
 
             string orderNumber = "";
@@ -147,7 +147,7 @@ namespace OrderService.src.Repository
 
                 orderNumber = $"CEN-{numberPart}";
 
-                var exist =  _context.Orders.Any(o => o.OrderNumber == orderNumber);
+                var exist = _context.Orders.Any(o => o.OrderNumber == orderNumber);
 
                 if (!exist)
                 {
