@@ -53,7 +53,7 @@ namespace OrderService.src.Repository
 
 
         //TODO: GET obtener order por id o por numero de pedido
-        public async Task<ResponseOrderDto?> GetOrderByIdorOrderNumber(Guid? OrderId, string? orderNumber)
+        public async Task<ResponseOrderDto?> GetOrderByIdorOrderNumber(Guid? OrderId, string? OrderNumber)
         {
             var query = _context.Orders.Include(o => o.Items).AsQueryable();
 
@@ -64,20 +64,62 @@ namespace OrderService.src.Repository
                 order = await query.FirstOrDefaultAsync(o => o.Id == OrderId);
             }
 
-            if (orderNumber != null)
+            if (OrderNumber != null)
             {
-                order = await query.FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
-                
+                order = await query.FirstOrDefaultAsync(o => o.OrderNumber == OrderNumber);
+
             }
 
             return order?.ToOrderResponse();
-            
-        }
-        
 
-        
+        }
+
+
+
 
         //TODO: PUT actualizar estado de un pedido (ADMIN)
+        public async Task<ResponseChangeStateDto> ChangeStateOrder(Guid? OrderId, string? OrderNumber,ChangeStateDto request)
+        {
+
+            Order? order = null;
+
+            if (OrderId != null)
+            {
+                order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == OrderId);
+            }
+
+            if ( OrderNumber != null)
+            {
+                order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderNumber == OrderNumber);
+
+            }
+
+            if (order == null)
+            {
+                throw new Exception("Error: Pedido no encontrado");
+            }
+
+            if(string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() == "enviado")
+            {
+                throw new Exception("Error: El numero de seguimiento es requerido para cambiar el estado a Enviado");
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.TrackingNumber))
+            {
+                order.TrackingNumber = request.TrackingNumber;
+            }
+            
+            order.OrderStatus = request.OrderStatus;
+            order.UpdateAt = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            await _context.SaveChangesAsync();
+
+            var response = order.ToChangeStateResponse();
+
+            return response;
+
+           
+        }
 
         //TODO: PUT cancelar pedido cambiando el estado del mismo
 
@@ -85,7 +127,7 @@ namespace OrderService.src.Repository
         
         //TODO: GET obtener historicos de clientes con filtros id o numero de pedido, rango de fechas de cracion, id o nombre de cliente (ADMIN)
 
-        //TODO: Funcion para crar numero de pedido aleatorio sin repetirse
+        //Funcion para crar numero de pedido aleatorio sin repetirse
         public string CreateOrderNumber()
         {
 

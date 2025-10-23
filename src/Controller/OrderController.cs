@@ -87,6 +87,45 @@ namespace OrderService.src.Controller
             }
         }
 
+        [HttpPut("ChangeState/{Identifier}")]
+        public async Task<IActionResult> ChangeState(string Identifier, ChangeStateDto request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+
+                Guid? orderId = null;
+                string? orderNumber = null;
+
+                if (Guid.TryParse(Identifier, out var guid))
+                {
+                    orderId = guid;
+                }
+                else
+                {
+                    orderNumber = Identifier;
+                }
+
+                var NewState = await _orderRepository.ChangeStateOrder(orderId, orderNumber, request);
+
+                return Ok(new
+                {
+                    message = "Estado de pedido modificado con exito",
+                    Estacion = NewState
+                });
+
+            }
+            catch (Exception e)
+            {
+
+                return StatusCode(500, new { message = e.Message });
+            }
+        }
+
 
 
     }
