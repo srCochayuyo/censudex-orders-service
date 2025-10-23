@@ -22,7 +22,7 @@ namespace OrderService.src.Repository
 
 
         //POST Crear orden
-        public async Task<ResponseOrderDto> CreateOrder(CreateOrderDto request)
+        public async Task<ResponseCreateOrderDto> CreateOrder(CreateOrderDto request)
         {
             var OrderRequest = new Order
             {
@@ -47,29 +47,28 @@ namespace OrderService.src.Repository
 
             await _context.SaveChangesAsync();
 
-            return OrderRequest.ToOrderResponse();
+            return OrderRequest.ToCreateOrderResponse();
         }
 
 
         //GET obtener order por id o por numero de pedido
-        public async Task<ResponseOrderDto?> GetOrderByIdentifier(Guid? OrderId, string? OrderNumber)
+        public async Task<ResponseGetOrderDto?> GetOrderByIdentifier(Guid? OrderId, string? OrderNumber)
         {
-            var order = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber,true);
+            var orderRequest = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber,true);
 
-            return order?.ToOrderResponse();
-
+            return orderRequest?.ToGetOrderResponse();
         }
 
 
 
 
-        //TODO: PUT actualizar estado de un pedido (ADMIN)
+        //PUT actualizar estado de un pedido (ADMIN)
         public async Task<ResponseChangeStateDto> ChangeStateOrder(Guid? OrderId, string? OrderNumber, ChangeStateDto request)
         {
 
-            var order = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber);
+            var orderRequest = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber);
 
-            if (order == null)
+            if (orderRequest == null)
             {
                 throw new Exception("Error: Pedido no encontrado");
             }
@@ -86,15 +85,15 @@ namespace OrderService.src.Repository
 
             if (!string.IsNullOrWhiteSpace(request.TrackingNumber))
             {
-                order.TrackingNumber = request.TrackingNumber;
+                orderRequest.TrackingNumber = request.TrackingNumber;
             }
 
-            order.OrderStatus = request.OrderStatus;
-            order.UpdateAt = DateOnly.FromDateTime(DateTime.UtcNow);
+            orderRequest.OrderStatus = request.OrderStatus;
+            orderRequest.UpdateAt = DateOnly.FromDateTime(DateTime.UtcNow);
 
             await _context.SaveChangesAsync();
 
-            return order.ToChangeStateResponse();;
+            return orderRequest.ToChangeStateResponse();;
 
 
         }
@@ -102,29 +101,29 @@ namespace OrderService.src.Repository
         //PUT cancelar pedido cambiando el estado del mismo
         public async Task<ResponseChangeStateDto> CancelateOrder(Guid? OrderId, string? OrderNumber)
         {
-            var order = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber);
+            var orderRequest = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber);
 
-            if (order == null)
+            if (orderRequest == null)
             {
                 throw new Exception("Error: Pedido no encontrado");
             }
 
-            if (order.OrderStatus == "Cancelado")
+            if (orderRequest.OrderStatus == "Cancelado")
             {
                 throw new Exception("Error: Pedido ya cancelado");
             }
 
-            if(order.OrderStatus == "Enviado")
+            if (orderRequest.OrderStatus == "Enviado")
             {
                 throw new Exception("Error: No es posible cancelar el pedido porque ya fue enviado.");
             }
 
-            order.OrderStatus = "Cancelado";
-            order.UpdateAt = DateOnly.FromDateTime(DateTime.UtcNow);
+            orderRequest.OrderStatus = "Cancelado";
+            orderRequest.UpdateAt = DateOnly.FromDateTime(DateTime.UtcNow);
 
             await _context.SaveChangesAsync();
 
-            return order.ToChangeStateResponse();;
+            return orderRequest.ToChangeStateResponse(); ;
 
         }
         

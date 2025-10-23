@@ -8,9 +8,9 @@ namespace OrderService.src.Interfaces
 {
     public interface IOrderRepository
     {
-        public Task<ResponseOrderDto> CreateOrder(CreateOrderDto request);
+        public Task<ResponseCreateOrderDto> CreateOrder(CreateOrderDto request);
 
-        public Task<ResponseOrderDto?> GetOrderByIdentifier(Guid? OrderId, string? orderNumber);
+        public Task<ResponseGetOrderDto?> GetOrderByIdentifier(Guid? OrderId, string? orderNumber);
 
         public Task<ResponseChangeStateDto> ChangeStateOrder(Guid? OrderId, string? OrderNumber, ChangeStateDto request);
 

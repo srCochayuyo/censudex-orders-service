@@ -9,9 +9,9 @@ namespace OrderService.src.Mappers
 {
     public static class OrderMappers
     {
-        public static ResponseOrderDto ToOrderResponse(this Order order)
+        public static ResponseCreateOrderDto ToCreateOrderResponse(this Order order)
         {
-            return new ResponseOrderDto
+            return new ResponseCreateOrderDto
             {
                 Id = order.Id,
                 OrderNumber = order.OrderNumber,
@@ -35,6 +35,23 @@ namespace OrderService.src.Mappers
                 TrackingNumber = order.TrackingNumber,
                 CreateAt = order.CreateAt,
                 UpdateAt = order.UpdateAt
+            };
+        }
+
+        public static ResponseGetOrderDto ToGetOrderResponse(this Order order)
+        {
+            return new ResponseGetOrderDto
+            {
+                Id = order.Id,
+                OrderNumber = order.OrderNumber,
+                Address = order.Address,
+                TrackingNumber = order.TrackingNumber,
+                OrderStatus = order.OrderStatus,
+                CreateAt = order.CreateAt,
+                UpdateAt = order.UpdateAt,
+                TotalPrice = order.TotalPrice,
+                Items = order.Items
+
             };
         }
     }
