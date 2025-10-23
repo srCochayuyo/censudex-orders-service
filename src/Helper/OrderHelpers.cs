@@ -8,7 +8,29 @@ namespace OrderService.src.Helper
 {
     public class OrderHelpers
     {
-      public static IQueryable<Order> UserFilter(IQueryable<Order> query, Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly? FinishDate)
+
+        public static (Guid? OrderId, string? OrderNumber) ParseOrderIdentifier(string? orderIdentifier)
+        {
+            Guid? OrderId = null;
+            string? OrderNumber = null;
+
+            if (Guid.TryParse(orderIdentifier, out var guid))
+            {
+                OrderId = guid;
+
+            }
+            else
+            {
+                OrderNumber = orderIdentifier;
+            }
+
+            return (OrderId, OrderNumber);
+
+        }
+
+
+
+        public static IQueryable<Order> UserFilter(IQueryable<Order> query, Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly? FinishDate)
         {
             if (OrderId != null)
             {

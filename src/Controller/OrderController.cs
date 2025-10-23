@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using OrderService.src.Dto;
+using OrderService.src.Helper;
 using OrderService.src.Interfaces;
 
 namespace OrderService.src.Controller
@@ -47,24 +49,14 @@ namespace OrderService.src.Controller
         }
 
         [HttpGet("{Identifier}")]
-        public async Task<IActionResult> GetOrderByIdentifier(string Identifier)
+        public async Task<IActionResult> GetOrderByIdentifier([Required] string Identifier)
         {
             try
             {
 
-                Guid? orderId = null;
-                string? orderNumber = null;
+                var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(Identifier);
 
-                if (Guid.TryParse(Identifier, out var guid))
-                {
-                    orderId = guid;
-                }
-                else
-                {
-                    orderNumber = Identifier;
-                }
-
-                var order = await _orderRepository.GetOrderByIdentifier(orderId, orderNumber);
+                var order = await _orderRepository.GetOrderByIdentifier(OrderId, OrderNumber);
 
                 if (order == null)
                 {
@@ -88,7 +80,7 @@ namespace OrderService.src.Controller
         }
 
         [HttpPut("ChangeState/{Identifier}")]
-        public async Task<IActionResult> ChangeState(string Identifier, ChangeStateDto request)
+        public async Task<IActionResult> ChangeState([Required]string Identifier, ChangeStateDto request)
         {
             try
             {
@@ -98,19 +90,9 @@ namespace OrderService.src.Controller
                 }
 
 
-                Guid? orderId = null;
-                string? orderNumber = null;
-
-                if (Guid.TryParse(Identifier, out var guid))
-                {
-                    orderId = guid;
-                }
-                else
-                {
-                    orderNumber = Identifier;
-                }
-
-                var NewState = await _orderRepository.ChangeStateOrder(orderId, orderNumber, request);
+                var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(Identifier);
+               
+                var NewState = await _orderRepository.ChangeStateOrder(OrderId, OrderNumber, request);
 
                 return Ok(new
                 {
@@ -132,17 +114,7 @@ namespace OrderService.src.Controller
             try
             {
 
-                Guid? OrderId = null;
-                string? OrderNumber = null;
-
-                if (Guid.TryParse(Identifier, out var guid))
-                {
-                    OrderId = guid;
-                }
-                else
-                {
-                    OrderNumber = Identifier;
-                }
+                var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(Identifier);
 
                 var cancelate = await _orderRepository.CancelateOrder(OrderId, OrderNumber);
 
@@ -161,23 +133,13 @@ namespace OrderService.src.Controller
         }
 
         [HttpGet("Orders")]
-        public async Task<IActionResult> GetOrdersUser(Guid UserId, [FromQuery] string? OrderIdentifier, [FromQuery] DateOnly? InitialDate, [FromQuery] DateOnly? FinishDate)
+        public async Task<IActionResult> GetOrdersUser([Required]Guid UserId, [FromQuery] string? OrderIdentifier, [FromQuery] DateOnly? InitialDate, [FromQuery] DateOnly? FinishDate)
         {
 
             try
             {
 
-                Guid? OrderId = null;
-                string? OrderNumber = null;
-
-                if (Guid.TryParse(OrderIdentifier, out var guid))
-                {
-                    OrderId = guid;
-                }
-                else
-                {
-                    OrderNumber = OrderIdentifier;
-                }
+                var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(OrderIdentifier);
 
                 var orders = await _orderRepository.GetAllOrdersUser(UserId, OrderId, OrderNumber,InitialDate,FinishDate);
 
