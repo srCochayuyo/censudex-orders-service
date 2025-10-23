@@ -9,7 +9,7 @@ namespace OrderService.src.Dto
     {
         public Guid UserId { get; set; }
 
-        //public string UserName { get; set; } = string.Empty!;
+        public string UserName { get; set; } = string.Empty!;
         
         public string Address { get; set; } = string.Empty;
         public List<CreateOrderItemDto> Items { get; set; } = new();

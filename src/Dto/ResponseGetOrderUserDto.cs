@@ -8,6 +8,8 @@ namespace OrderService.src.Dto
     public class ResponseGetOrderUserDto
     {
 
+        public Guid OderId { get; set; }
+        
         public string OrderNumber { get; set; } = string.Empty!;
 
         public string Address { get; set; } = string.Empty!;

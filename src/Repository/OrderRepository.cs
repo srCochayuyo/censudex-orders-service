@@ -28,6 +28,7 @@ namespace OrderService.src.Repository
             var OrderRequest = new Order
             {
                 UserId = request.UserId,
+                UserName = request.UserName,
                 OrderNumber = CreateOrderNumber(),
                 Address = request.Address,
                 OrderStatus = "Pendiente",

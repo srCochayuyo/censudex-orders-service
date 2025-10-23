@@ -14,6 +14,7 @@ namespace OrderService.src.Mappers
             return new ResponseCreateOrderDto
             {
                 Id = order.Id,
+                UserName = order.UserName,
                 OrderNumber = order.OrderNumber,
                 Address = order.Address,
                 OrderStatus = order.OrderStatus,
@@ -53,6 +54,7 @@ namespace OrderService.src.Mappers
         {
             return new ResponseGetOrderUserDto
             {
+                OderId = order.Id,
                 OrderNumber = order.OrderNumber,
                 Address = order.Address,
                 OrderStatus = order.OrderStatus,
