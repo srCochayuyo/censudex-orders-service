@@ -48,8 +48,8 @@ namespace OrderService.src.Controller
             }
         }
 
-        [HttpGet("{Identifier}")]
-        public async Task<IActionResult> GetOrderStatusByIdentifier([Required] string Identifier)
+        [HttpGet("State/{Identifier}")]
+        public async Task<IActionResult> GetOrderStatusByIdentifier(string Identifier)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace OrderService.src.Controller
         }
 
         [HttpPut("ChangeState/{Identifier}")]
-        public async Task<IActionResult> ChangeState([Required]string Identifier, ChangeStateDto request)
+        public async Task<IActionResult> ChangeState(string Identifier, ChangeStateDto request)
         {
             try
             {
@@ -127,8 +127,8 @@ namespace OrderService.src.Controller
             }
         }
 
-        [HttpGet("Orders")]
-        public async Task<IActionResult> GetOrdersUser([Required]Guid UserId, [FromQuery] string? OrderIdentifier, [FromQuery] DateOnly? InitialDate, [FromQuery] DateOnly? FinishDate)
+        [HttpGet("Orders/{UserId}")]
+        public async Task<IActionResult> GetOrdersUser(Guid UserId, [FromQuery] string? OrderIdentifier, [FromQuery] DateOnly? InitialDate, [FromQuery] DateOnly? FinishDate)
         {
 
             try
