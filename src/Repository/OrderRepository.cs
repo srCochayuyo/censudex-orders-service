@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderService.src.Data;
 using OrderService.src.Dto;
 using OrderService.src.Helper;
 using OrderService.src.Interfaces;
 using OrderService.src.Mappers;
+using OrderService.src.Messages;
 using OrderService.src.Models;
 
 namespace OrderService.src.Repository
@@ -16,9 +18,12 @@ namespace OrderService.src.Repository
     {
         private readonly DBContext _context;
 
-        public OrderRepository(DBContext context)
+        private readonly IPublishEndpoint _publishEndpoint;
+
+        public OrderRepository(DBContext context,IPublishEndpoint publishEndpoint)
         {
             _context = context;
+            _publishEndpoint = publishEndpoint;
         }
 
 
@@ -42,12 +47,25 @@ namespace OrderService.src.Repository
                 }).ToList()
             };
 
-            //TODO: Publicar evento en RabbitMQ
+            
 
             await _context.Orders.AddAsync(OrderRequest);
             await _context.OrderItems.AddRangeAsync(OrderRequest.Items);
-
             await _context.SaveChangesAsync();
+
+            //RabbitMQ
+            var orderMessage = new SenderMessage
+            {
+                OrderId = OrderRequest.Id,
+                Items = OrderRequest.Items.Select(i => new OrderItemsMessage
+                {
+                    ProductId = i.ProductId,
+                    Quantity = i.Quantity
+                }).ToList()
+
+            };
+
+            await _publishEndpoint.Publish(orderMessage);
 
             return OrderRequest.ToCreateOrderResponse();
         }

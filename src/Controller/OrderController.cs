@@ -10,7 +10,7 @@ using OrderService.src.Interfaces;
 
 namespace OrderService.src.Controller
 {
-    [Route("Order")]
+    [Route("Orders")]
     [ApiController]
     public class OrderController : ControllerBase
     {
@@ -74,7 +74,7 @@ namespace OrderService.src.Controller
             }
         }
 
-        [HttpPut("ChangeState/{Identifier}")]
+        [HttpPut("{Identifier}/status")]
         public async Task<IActionResult> ChangeState(string Identifier, ChangeStateDto request)
         {
             try
@@ -103,7 +103,7 @@ namespace OrderService.src.Controller
             }
         }
 
-        [HttpPut("Cancelate/{Identifier}")]
+        [HttpPatch("{Identifier}")]
         public async Task<IActionResult> CancelateOrder(string Identifier)
         {
             try
