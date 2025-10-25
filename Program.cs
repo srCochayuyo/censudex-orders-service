@@ -18,6 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
+var RabbitMQConnectionString = Environment.GetEnvironmentVariable("RabbitMQConnectionString") ?? throw new InvalidOperationException("RabbitMQConnectionString no encontrado.");
+
 builder.Services.AddMassTransit(x =>
 {
     // Registrar todos los consumers
@@ -27,12 +29,12 @@ builder.Services.AddMassTransit(x =>
     // Configuración de RabbitMQ
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("amqp://guest:guest@localhost:5672");
+        cfg.Host(RabbitMQConnectionString);
 
         // Cola para el consumer de prueba
         cfg.ReceiveEndpoint("order_products", e =>
         {
-            //Consumer de prueba para mensaje que se envia al momeno de crear la orden
+            //Consumer de prueba para mensaje que se envia al momento de crear la orden
             e.ConfigureConsumer<CreateOrderConsumer>(context);
 
         });

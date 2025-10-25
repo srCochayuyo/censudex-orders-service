@@ -279,38 +279,5 @@ namespace OrderService.src.Repository
         
 
 
-
-
-        public async Task PublishStockValidationAsync(Guid orderId, Guid productId, int requestedQuantity, int availableQuantity, bool validationResult)
-        {
-            var message = new StockValidateMessage
-            {
-                EventType = "stock_validation",
-                OrderId = orderId,
-                ProductId = productId,
-                RequestedQuantity = requestedQuantity,
-                AvailableQuantity = availableQuantity,
-                Timestamp = DateTime.UtcNow.ToString("O"),
-                ValidationResult = validationResult
-            };
-
-            await _publishEndpoint.Publish(message);
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }

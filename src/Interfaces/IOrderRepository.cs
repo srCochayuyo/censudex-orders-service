@@ -23,10 +23,5 @@ namespace OrderService.src.Interfaces
 
         public Task<int> CountItemsOrderById(Guid Id);
 
-        public Task PublishStockValidationAsync(Guid orderId, Guid productId, int requestedQuantity, int availableQuantity, bool validationResult);
-
-
-
-
     }
 }
