@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MassTransit;
+using OrderService.src.Messages;
 
-namespace OrderService.src.Messages
+namespace OrderService.src.Consumers
 {
-    public class ReceiverMessage : IConsumer<SenderMessage>
+    public class CreateOrderConsumer : IConsumer<SenderMessage>
     {
         public Task Consume(ConsumeContext<SenderMessage> context)
         {

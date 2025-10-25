@@ -159,9 +159,9 @@ namespace OrderService.src.Controller
 
 
         }
-        
+
         [HttpGet("Orders")]
-        public async Task<IActionResult> GetOrdersAdmin([FromQuery]string? UserIdentifier, [FromQuery] string? OrderIdentifier, [FromQuery] DateOnly? InitialDate, [FromQuery] DateOnly? FinishDate)
+        public async Task<IActionResult> GetOrdersAdmin([FromQuery] string? UserIdentifier, [FromQuery] string? OrderIdentifier, [FromQuery] DateOnly? InitialDate, [FromQuery] DateOnly? FinishDate)
         {
 
             try
@@ -182,7 +182,7 @@ namespace OrderService.src.Controller
 
                 var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(OrderIdentifier);
 
-                var orders = await _orderRepository.GetAllOrdersAdmin(UserId,UserName, OrderId, OrderNumber,InitialDate,FinishDate);
+                var orders = await _orderRepository.GetAllOrdersAdmin(UserId, UserName, OrderId, OrderNumber, InitialDate, FinishDate);
 
                 var response = new
                 {
@@ -201,6 +201,29 @@ namespace OrderService.src.Controller
 
 
 
+        }
+        
+
+        [HttpPost("test-stock-validation")]
+        public async Task<IActionResult> TestStockValidation()
+        {
+            Guid orderId = new Guid("d91aec5f-7bee-44c6-9254-01c924a29a8f");
+             
+
+            // Lista de productos a simular
+            var products = new List<(Guid productId, int requested, int available, bool validation)>
+            {
+                (new Guid("fe24e510-7168-45e7-b765-c91f94975802"), 2, 2, false),  // falla
+                (new Guid("a1234567-89ab-cdef-0123-456789abcdef"), 1, 1, true),   // éxito
+                
+            };
+
+            foreach (var p in products)
+            {
+                await _orderRepository.PublishStockValidationAsync(orderId, p.productId, p.requested, p.available, p.validation);
+            }
+
+            return Ok("Mensajes de prueba enviados para varios productos");
         }
         
 

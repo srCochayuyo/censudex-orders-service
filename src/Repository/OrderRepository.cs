@@ -11,6 +11,7 @@ using OrderService.src.Interfaces;
 using OrderService.src.Mappers;
 using OrderService.src.Messages;
 using OrderService.src.Models;
+using static OrderService.src.Messages.SenderMessage;
 
 namespace OrderService.src.Repository
 {
@@ -192,16 +193,16 @@ namespace OrderService.src.Repository
         }
 
         //GET obtener historicos de clientes con filtros id o numero de pedido, rango de fechas de cracion, id o nombre de cliente (ADMIN)
-        public async Task<List<ResponseGetOrderAdminDto>> GetAllOrdersAdmin(Guid? UserId,string? Username,Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly?FinishDate)
+        public async Task<List<ResponseGetOrderAdminDto>> GetAllOrdersAdmin(Guid? UserId, string? Username, Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly? FinishDate)
         {
             if (InitialDate.HasValue && FinishDate.HasValue && (InitialDate > FinishDate))
             {
                 throw new Exception("Error: La fecha final debe ser mayor a la fecha inicial");
             }
 
-            IQueryable<Order> query = _context.Orders; 
+            IQueryable<Order> query = _context.Orders;
 
-            query = OrderHelpers.AdminFilter(query,UserId,Username, OrderId, OrderNumber, InitialDate, FinishDate);
+            query = OrderHelpers.AdminFilter(query, UserId, Username, OrderId, OrderNumber, InitialDate, FinishDate);
 
             var Orders = await query.Include(o => o.Items).Select(o => o.ToGetOrdersResponse()).ToListAsync();
 
@@ -213,7 +214,21 @@ namespace OrderService.src.Repository
             return Orders;
         }
 
+        //Funcion para contar productos de una orden existente por id para validacion de RabbitMQ
+        public async Task<int> CountItemsOrderById(Guid Id)
+        {
+            var exist = await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == Id);
 
+            if (exist == null)
+            {
+                throw new Exception("Error: Orden no encontrada");
+            }
+
+            int count = exist.Items.Count;
+
+            return count;
+
+        }
         //Funcion para obtener ordern con identificador (pueder ser ID o Numero de Orden)
         private async Task<Order?> GetOrderByIdOrOrderNumber(Guid? OrderId, string? OrderNumber, bool includeItems = false)
         {
@@ -236,7 +251,7 @@ namespace OrderService.src.Repository
 
             return null;
         }
-        
+
         //Funcion para crar numero de pedido aleatorio sin repetirse
         private string CreateOrderNumber()
         {
@@ -261,5 +276,41 @@ namespace OrderService.src.Repository
 
             }
         }
+        
+
+
+
+
+        public async Task PublishStockValidationAsync(Guid orderId, Guid productId, int requestedQuantity, int availableQuantity, bool validationResult)
+        {
+            var message = new StockValidateMessage
+            {
+                EventType = "stock_validation",
+                OrderId = orderId,
+                ProductId = productId,
+                RequestedQuantity = requestedQuantity,
+                AvailableQuantity = availableQuantity,
+                Timestamp = DateTime.UtcNow.ToString("O"),
+                ValidationResult = validationResult
+            };
+
+            await _publishEndpoint.Publish(message);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

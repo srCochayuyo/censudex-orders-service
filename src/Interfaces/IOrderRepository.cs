@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using OrderService.src.Dto;
+using OrderService.src.Models;
 
 namespace OrderService.src.Interfaces
 {
@@ -19,5 +20,13 @@ namespace OrderService.src.Interfaces
         public Task<List<ResponseGetOrderUserDto>> GetAllOrdersUser(Guid UserId, Guid? OrderId, string? OrderNumber, DateOnly? InitalDate, DateOnly? FinisDate);
 
         public Task<List<ResponseGetOrderAdminDto>> GetAllOrdersAdmin(Guid? UserId, string? Username, Guid? OrderId, string? OrderNumber, DateOnly? InitialDate, DateOnly? FinishDate);
+
+        public Task<int> CountItemsOrderById(Guid Id);
+
+        public Task PublishStockValidationAsync(Guid orderId, Guid productId, int requestedQuantity, int availableQuantity, bool validationResult);
+
+
+
+
     }
 }

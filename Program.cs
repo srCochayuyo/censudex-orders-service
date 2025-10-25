@@ -1,6 +1,7 @@
 using DotNetEnv;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using OrderService.src.Consumers;
 using OrderService.src.Data;
 using OrderService.src.Interfaces;
 using OrderService.src.Messages;
@@ -20,7 +21,8 @@ builder.Services.AddControllers();
 builder.Services.AddMassTransit(x =>
 {
     // Registrar todos los consumers
-    x.AddConsumer<ReceiverMessage>();
+    x.AddConsumer<CreateOrderConsumer>();
+    x.AddConsumer<StockValidationConsumer>();
 
     // Configuración de RabbitMQ
     x.UsingRabbitMq((context, cfg) =>
@@ -30,9 +32,16 @@ builder.Services.AddMassTransit(x =>
         // Cola para el consumer de prueba
         cfg.ReceiveEndpoint("order_products", e =>
         {
-            e.ConfigureConsumer<ReceiverMessage>(context);
+            //Consumer de prueba para mensaje que se envia al momeno de crear la orden
+            e.ConfigureConsumer<CreateOrderConsumer>(context);
+
         });
 
+        cfg.ReceiveEndpoint("stock_validation", e =>
+        {
+            e.ConfigureConsumer<StockValidationConsumer>(context);
+        });
+        
 
     });
 });
