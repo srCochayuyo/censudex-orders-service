@@ -1,0 +1,170 @@
+syntax = "proto3";
+
+option  csharp_namespace = "OrderService.Grpc";
+
+package Orders;
+
+service OrderService
+{
+    rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse);
+    rpc GetOrderStatus (GetOrderStatusRequest) returns (GetOrderStatusResponse);
+    rpc ChangeOrderState (ChangeOrderStateRequest) returns (ChangeOrderStateResponse);
+    rpc CancelOrder (CancelOrderRequest) returns (CancelOrderResponse);
+    rpc GetUserOrders (GetUserOrdersRequest) returns (GetUserOrdersResponse);
+    rpc GetAdminOrders (GetAdminOrdersRequest) returns (GetAdminOrdersResponse);
+}
+
+//Peticion
+message CreateOrderRequest
+{
+    string user_id = 1;
+    string user_name = 2;
+    string address = 3;
+    repeated OrderItemRequest items = 4;
+}
+
+message OrderItemRequest
+{
+    string product_id = 1;
+    string product_name = 2;
+    int32 quantity = 3;
+    double unit_price = 4;
+}
+
+message GetOrderStatusRequest
+{
+    string identifier = 1;
+}
+
+message ChangeOrderStateRequest
+{
+    string identifier = 1;
+    string order_status = 2;
+    string tracking_number = 3;
+}
+
+message CancelOrderRequest
+{
+    string identifier = 1;
+}
+
+message GetUserOrdersRequest
+{
+    string user_id = 1;
+    string order_identifier = 2;
+    string initial_date = 3;
+    string finish_date = 4;
+}
+
+message GetAdminOrdersRequest
+{
+    string user_identifier = 1; 
+    string order_identifier = 2; 
+    string initial_date = 3; 
+    string finish_date = 4; 
+}
+
+//Responses
+message CreateOrderResponse
+{
+    string id = 1;
+    string user_name = 2;
+    string order_number = 3;
+    string address = 4;
+    string order_status = 5;
+    string tracking_number = 6;
+    string create_at = 7; 
+    double total_price = 8;
+    repeated OrderItemResponse items = 9;
+}
+
+message OrderItemResponse
+{
+    string id = 1;
+    string order_id = 2;
+    string product_id = 3;
+    string product_name = 4;
+    int32 quantity = 5;
+    double unit_price = 6;
+    double subtotal = 7;
+}
+
+message GetOrderStatusResponse
+{
+   repeated OrderStateInfo orders = 1; 
+}
+
+message OrderStateInfo
+{
+    string order_number = 1;
+    string order_status = 2;
+    string update_at = 3; 
+}
+
+message ChangeOrderStateResponse
+{
+    string id = 1;
+    string order_number = 2;
+    string address = 3;
+    string order_status = 4;
+    string tracking_number = 5;
+    string create_at = 6;
+    string update_at = 7;
+}
+
+message CancelOrderResponse
+{
+    string id = 1;
+    string order_number = 2;
+    string address = 3;
+    string order_status = 4;
+    string tracking_number = 5;
+    string create_at = 6;
+    string update_at = 7;
+}
+
+message GetUserOrdersResponse
+{
+    repeated UserOrderInfo orders = 1;
+}
+
+message UserOrderInfo
+{
+    string order_id = 1;
+    string order_number = 2;
+    string address = 3;
+    string order_status = 4;
+    string tracking_number = 5;
+    string create_at = 6;
+    string update_at = 7;
+    double total_price = 8;
+    repeated UserOrderItemInfo items = 9;
+}
+
+message UserOrderItemInfo 
+{
+  string product_name = 1;
+  double unit_price = 2;
+  int32 quantity = 3;
+  double subtotal = 4;
+}
+
+message GetAdminOrdersResponse
+{
+    repeated AdminOrderInfo orders = 1;
+}
+
+message AdminOrderInfo 
+{
+  string id = 1;
+  string user_id = 2;
+  string user_name = 3;
+  string order_number = 4;
+  string address = 5;
+  string tracking_number = 6;
+  string order_status = 7;
+  string create_at = 8;
+  string update_at = 9;
+  double total_price = 10;
+  repeated OrderItemResponse items = 11;
+}

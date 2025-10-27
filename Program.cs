@@ -1,11 +1,13 @@
 using DotNetEnv;
 using MassTransit;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using OrderService.src.Consumers;
 using OrderService.src.Data;
 using OrderService.src.Interfaces;
 using OrderService.src.Messages;
 using OrderService.src.Repository;
+using OrderService.src.Service;
 using Scalar.AspNetCore;
 
 
@@ -34,7 +36,7 @@ builder.Services.AddMassTransit(x =>
         // Cola para el consumer de prueba
         cfg.ReceiveEndpoint("order_products", e =>
         {
-            //Consumer de prueba para mensaje que se envia al momento de crear la orden
+            //Consumer de prueba para verficiar que se envio el mensaje
             e.ConfigureConsumer<CreateOrderConsumer>(context);
 
         });
@@ -43,10 +45,21 @@ builder.Services.AddMassTransit(x =>
         {
             e.ConfigureConsumer<StockValidationConsumer>(context);
         });
-        
+
 
     });
 });
+
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5206, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2; 
+
+    });
+});
+
 
 
 string ConnectionString = Environment.GetEnvironmentVariable("OrderConnectionString") ?? throw new InvalidOperationException("OrderConnectionString no encontrado.");
@@ -54,6 +67,9 @@ builder.Services.AddDbContext<DBContext>(options => options.UseMySql(ConnectionS
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
+builder.Services.AddGrpc();
+
+builder.Services.AddGrpcReflection();
 
 
 var app = builder.Build();
@@ -63,8 +79,10 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    app.MapGrpcReflectionService();
 }
 
 app.UseHttpsRedirection();
 app.MapControllers(); 
+app.MapGrpcService<OrderGrpcService>();
 app.Run();

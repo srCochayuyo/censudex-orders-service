@@ -37,7 +37,7 @@ namespace OrderService.src.Helper
                 query = query.Where(o => o.UserId == UserId);
             }
 
-            if (UserName != null)
+            if (!string.IsNullOrWhiteSpace(UserName))
             {
                 query = query.Where(o => o.UserName.ToLower().Trim() == UserName.ToLower().Trim());
             }
