@@ -22,7 +22,7 @@ namespace OrderService.src.Dto
         
         public DateOnly CreateAt { get; set; }
 
-        public decimal TotalPrice { get; set; }
+        public double TotalPrice { get; set; }
 
         public List<OrderItem> Items { get; set; } = new();
 

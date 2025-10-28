@@ -80,8 +80,8 @@ namespace OrderService.src.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double>("UnitPrice")
+                        .HasColumnType("double");
 
                     b.HasKey("Id");
 

@@ -21,9 +21,9 @@ namespace OrderService.src.Models
 
         public int Quantity { get; set; }
 
-        public decimal UnitPrice { get; set; }
+        public double UnitPrice { get; set; }
 
-        public decimal Subtotal => Quantity * UnitPrice;
+        public double Subtotal => Quantity * UnitPrice;
 
     }
 }

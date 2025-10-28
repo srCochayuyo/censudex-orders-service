@@ -22,7 +22,7 @@ namespace OrderService.src.Mappers
                 OrderStatus = request.OrderStatus,
                 TrackingNumber = request.TrackingNumber ?? string.Empty,
                 CreateAt = request.CreateAt.ToString("yyyy-MM-dd"),
-                TotalPrice = (double)request.TotalPrice,
+                TotalPrice = request.TotalPrice,
                 Items =
                 {
                     request.Items.Select(i => new OrderItemResponse
@@ -32,8 +32,8 @@ namespace OrderService.src.Mappers
                         ProductId = i.ProductId.ToString(),
                         ProductName = i.ProductName,
                         Quantity = i.Quantity,
-                        UnitPrice = (double)i.UnitPrice,
-                        Subtotal = (double)i.Subtotal
+                        UnitPrice = i.UnitPrice,
+                        Subtotal = i.Subtotal
                     })
                 }
             };
@@ -93,13 +93,13 @@ namespace OrderService.src.Mappers
                 TrackingNumber = o.TrackingNumber ?? "",
                 CreateAt = o.CreateAt.ToString(),
                 UpdateAt = o.UpdateAt.ToString(),
-                TotalPrice = (double)o.TotalPrice,
+                TotalPrice = o.TotalPrice,
                 Items = { o.Items.Select(i => new UserOrderItemInfo
                 {
                     ProductName = i.ProductName,
-                    UnitPrice = (double)i.UnitPrice,
+                    UnitPrice = i.UnitPrice,
                     Quantity = i.Quantity,
-                    Subtotal = (double)i.Subtotal
+                    Subtotal = i.Subtotal
                 })}
             }));
             return response;
@@ -119,7 +119,7 @@ namespace OrderService.src.Mappers
                 OrderStatus = o.OrderStatus,
                 CreateAt = o.CreateAt.ToString(),
                 UpdateAt = o.UpdateAt.ToString(),
-                TotalPrice = (double)o.TotalPrice,
+                TotalPrice = o.TotalPrice,
                 Items = { o.Items.Select(i => new OrderItemResponse
                 {
                     Id = i.Id.ToString(),
@@ -127,8 +127,8 @@ namespace OrderService.src.Mappers
                     ProductId = i.ProductId.ToString(),
                     ProductName = i.ProductName,
                     Quantity = i.Quantity,
-                    UnitPrice = (double)i.UnitPrice,
-                    Subtotal = (double)i.Subtotal
+                    UnitPrice = i.UnitPrice,
+                    Subtotal = i.Subtotal
                 })}
             }));
             return response;

@@ -28,6 +28,6 @@ namespace OrderService.src.Dto
 
         public List<OrderItem> Items { get; set; } = new();
 
-        public decimal TotalPrice { get; set; }
+        public double TotalPrice { get; set; }
     }
 }

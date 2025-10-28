@@ -31,7 +31,7 @@ namespace OrderService.src.Models
 
         public List<OrderItem> Items { get; set; } = new();
 
-        public decimal TotalPrice => Items.Sum(i => i.Subtotal);
+        public double TotalPrice => Items.Sum(i => i.Subtotal);
         
     }
     

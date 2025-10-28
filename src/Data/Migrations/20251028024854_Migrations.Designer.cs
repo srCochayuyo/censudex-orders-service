@@ -12,8 +12,8 @@ using OrderService.src.Data;
 namespace OrderService.src.Data.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20251023211227_NewMigrations")]
-    partial class NewMigrations
+    [Migration("20251028024854_Migrations")]
+    partial class Migrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -83,8 +83,8 @@ namespace OrderService.src.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double>("UnitPrice")
+                        .HasColumnType("double");
 
                     b.HasKey("Id");
 

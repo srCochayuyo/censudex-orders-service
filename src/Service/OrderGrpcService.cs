@@ -65,7 +65,7 @@ namespace OrderService.src.Service
                         ProductId = Guid.Parse(i.ProductId),
                         ProductName = i.ProductName,
                         Quantity = i.Quantity,
-                        UnitPrice = (decimal)i.UnitPrice
+                        UnitPrice = i.UnitPrice
                     }).ToList()
                 };
 
@@ -213,12 +213,6 @@ namespace OrderService.src.Service
         {
             try
             {
-                _logger.LogInformation("=== INICIO GetAdminOrders ===");
-                _logger.LogInformation("UserIdentifier recibido: '{UserIdentifier}'", request.UserIdentifier ?? "NULL");
-                _logger.LogInformation("OrderIdentifier recibido: '{OrderIdentifier}'", request.OrderIdentifier ?? "NULL");
-                _logger.LogInformation("InitialDate recibido: '{InitialDate}'", request.InitialDate ?? "NULL");
-                _logger.LogInformation("FinishDate recibido: '{FinishDate}'", request.FinishDate ?? "NULL");
-
                 Guid? userId = null;
                 string? userName = null;
 
