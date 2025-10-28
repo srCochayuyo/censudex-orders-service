@@ -17,8 +17,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; 
-    options.ListenAnyIP(int.Parse(port)); 
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    options.ListenAnyIP(int.Parse(port));
+
+    options.ListenAnyIP(int.Parse(port), listenOptions =>
+    {
+        
+        listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+    });
+    
 });
 
 // Add services to the container.
@@ -55,17 +62,6 @@ builder.Services.AddMassTransit(x =>
 
     });
 });
-
-
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenLocalhost(5206, listenOptions =>
-    {
-        listenOptions.Protocols = HttpProtocols.Http2; 
-
-    });
-});
-
 
 
 string ConnectionString = Environment.GetEnvironmentVariable("OrderConnectionString") ?? throw new InvalidOperationException("OrderConnectionString no encontrado.");
