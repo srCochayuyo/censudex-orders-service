@@ -1,0 +1,28 @@
+# Imagen base del SDK de .NET 9 para compilar la aplicación
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+
+# Directorio de trabajo dentro del contenedor para la compilación
+WORKDIR /App
+
+# Copiar todos los archivos del proyecto al contenedor
+COPY . ./
+
+# Restaurar las dependencias del proyecto
+RUN dotnet restore
+
+# Compilar y publicar la aplicación en modo Release
+RUN dotnet publish -c Release -o out
+
+# Etapa de ejecución
+# Imagen base del runtime de .NET 9 para ejecutar la aplicación
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+
+# Directorio de trabajo en el contenedor final
+WORKDIR /App
+
+# Copiar los archivos publicados desde la etapa de compilación
+COPY --from=build /App/out .
+
+
+# Ejecutar la aplicación
+ENTRYPOINT ["dotnet", "OrderService.dll"]
