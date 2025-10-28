@@ -33,27 +33,49 @@ namespace OrderService.src.Service
             {
                 if (string.IsNullOrWhiteSpace(request.UserId))
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "UserId es requerido"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Id de usuario es requerido"));
                 }
                     
 
                 if (string.IsNullOrWhiteSpace(request.UserName))
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "UserName es requerido"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Nombre de usuario requerido"));
                 }
-                    
+
 
                 if (string.IsNullOrWhiteSpace(request.Address))
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Direccion es requerido"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Direccion requerida"));
                 }
-                    
 
                 if (request.Items == null || request.Items.Count == 0)
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Items es requerido"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Items requeridos"));
                 }
                     
+                if (request.Items.Any(i => string.IsNullOrWhiteSpace(i.ProductId)))
+                {
+                  throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Producto sin Id"));  
+                }
+                
+
+                if (request.Items.Any(i => string.IsNullOrWhiteSpace(i.ProductName)))
+                {
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Producto sin nombre de usuario"));
+                }
+           
+
+                if (request.Items.Any(i => i.Quantity <= 0))
+                {
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. La cantidad de cada producto debe ser mayor a 0"));
+                }
+            
+
+                if (request.Items.Any(i => i.UnitPrice <= 0))
+                {
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. El precio de cada producto debe ser mayor a 0"));
+                }
+            
 
                 var createOrderRequest = new CreateOrderDto
                 {
@@ -88,7 +110,7 @@ namespace OrderService.src.Service
             {
                 if (string.IsNullOrWhiteSpace(request.Identifier))
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Identifier de pedido es requerido (Id de usuario o Numero de pedido)"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Identifier de pedido es requerido (Id de usuario o Numero de pedido)"));
                 }
 
                 var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(request.Identifier);
@@ -111,18 +133,18 @@ namespace OrderService.src.Service
             {
                 if (string.IsNullOrWhiteSpace(request.Identifier))
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Identifier es requerido"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, " Error Identifier requerido"));
                 }
 
                 if (string.IsNullOrWhiteSpace(request.OrderStatus))
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Nuevo estado de orden es requerido"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Nuevo estado de orden requerido"));
                 }
 
                 var validStates = new[] { "pendiente", "en procesamiento", "enprocesamiento", "enviado", "entregado" };
                 if (!validStates.Contains(request.OrderStatus.ToLower().Replace(" ", "")))
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Estado inválido. Valores permitidos: Pendiente, En Procesamiento, Enviado, Entregado"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Estado inválido. Valores permitidos: Pendiente, En Procesamiento, Enviado, Entregado"));
                 }
 
 
@@ -155,7 +177,7 @@ namespace OrderService.src.Service
             {
                 if (string.IsNullOrWhiteSpace(request.Identifier))
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Identifier es requerido"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Identifier requerido"));
                 }
 
                 var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(request.Identifier);
@@ -178,7 +200,7 @@ namespace OrderService.src.Service
             {
                 if (string.IsNullOrWhiteSpace(request.UserId))
                 {
-                    throw new RpcException(new Status(StatusCode.InvalidArgument, "UserId es requerido"));
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Id de usuario requerido"));
                 }
 
                 var userId = Guid.Parse(request.UserId);
@@ -241,8 +263,6 @@ namespace OrderService.src.Service
                     finishDate = DateOnly.Parse(request.FinishDate);
                 }
                 
-                _logger.LogInformation("GRPC - UserId: {UserId}, UserName: '{UserName}', OrderId: {OrderId}, OrderNumber: '{OrderNumber}', InitialDate: {InitialDate}, FinishDate: {FinishDate}", 
-                    userId, userName, OrderId, OrderNumber, initialDate, finishDate);
                 var orders = await _orderRepository.GetAllOrdersAdmin(userId, userName, OrderId, OrderNumber, initialDate, finishDate);
 
                 return ProtoMappers.ToGetAdminOrdersProtoResponse(orders);
