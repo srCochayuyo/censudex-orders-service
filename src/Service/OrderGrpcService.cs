@@ -14,19 +14,44 @@ using RabbitMQ.Client;
 
 namespace OrderService.src.Service
 {
+    /// <summary>
+    /// Servicio gRPC encargado de gestionar las operaciones relacionadas con ordenes.
+    /// Implementa las operaciones definidas en el contrato gRPC `OrderService`.
+    /// </summary>
     public class OrderGrpcService : Grpc.OrderService.OrderServiceBase
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ILogger<OrderGrpcService> _logger;
 
+        /// <summary>
+        /// Constructor del servicio de ordenes gRPC.
+        /// Inicializa las dependencias necesarias para la interacción con el repositorio y el registro de logs.
+        /// </summary>
+        /// <param name="orderRepository">
+        /// Repositorio encargado de la gestion de las ordenes.
+        /// </param>
+        /// <param name="logger">
+        /// Instancia de logger para registrar información y errores.
+        /// </param>
         public OrderGrpcService(IOrderRepository orderRepository, ILogger<OrderGrpcService> logger)
         {
             _orderRepository = orderRepository;
             _logger = logger;
         }
 
-
-        //Crear orden
+        /// <summary>
+        /// Crea una nueva orden a partir de los datos recibidos desde el cliente gRPC.
+        /// Valida los campos de entrada antes de persistir la orden.
+        /// </summary>
+        /// <param name="request">
+        /// Datos necesarios para la creacion de la orden.
+        /// </param>
+        /// <param name="context">
+        /// Contexto de la llamada gRPC.
+        /// </param>
+        /// <returns>
+        /// Objeto con los datos de la orden creada.
+        /// </returns>
         public override async Task<CreateOrderResponse> CreateOrder(CreateOrderRequest request, ServerCallContext context)
         {
             try
@@ -35,13 +60,11 @@ namespace OrderService.src.Service
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Id de usuario es requerido"));
                 }
-                    
 
                 if (string.IsNullOrWhiteSpace(request.UserName))
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Nombre de usuario requerido"));
                 }
-
 
                 if (string.IsNullOrWhiteSpace(request.Address))
                 {
@@ -52,30 +75,26 @@ namespace OrderService.src.Service
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Items requeridos"));
                 }
-                    
+
                 if (request.Items.Any(i => string.IsNullOrWhiteSpace(i.ProductId)))
                 {
-                  throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Producto sin Id"));  
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Producto sin Id"));
                 }
-                
 
                 if (request.Items.Any(i => string.IsNullOrWhiteSpace(i.ProductName)))
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Producto sin nombre de usuario"));
                 }
-           
 
                 if (request.Items.Any(i => i.Quantity <= 0))
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. La cantidad de cada producto debe ser mayor a 0"));
                 }
-            
 
                 if (request.Items.Any(i => i.UnitPrice <= 0))
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. El precio de cada producto debe ser mayor a 0"));
                 }
-            
 
                 var createOrderRequest = new CreateOrderDto
                 {
@@ -103,7 +122,19 @@ namespace OrderService.src.Service
             }
         }
 
-        //Obtener estado por identificador
+        /// <summary>
+        /// Obtiene el estado actual de una orden a partir de su identificador.
+        /// El identificador puede corresponder al ID de  o al numero de pedido.
+        /// </summary>
+        /// <param name="request">
+        /// Solicitud que contiene el identificador de la orden.
+        /// </param>
+        /// <param name="context">
+        /// Contexto de la llamada gRPC.
+        /// </param>
+        /// <returns>
+        /// Objeto con el estado de la orden.
+        /// </returns>
         public override async Task<GetOrderStatusResponse> GetOrderStatus(GetOrderStatusRequest request, ServerCallContext context)
         {
             try
@@ -126,8 +157,17 @@ namespace OrderService.src.Service
             }
         }
 
-        // cambiar estado de orden
-        public override async Task<ChangeOrderStateResponse> ChangeOrderState(ChangeOrderStateRequest request,ServerCallContext context)
+        /// <summary>
+        /// Cambia el estado de una orden existente en el sistema.
+        /// </summary>
+        /// <param name="request">
+        /// Solicitud que contiene el identificador y el nuevo estado de la orden.
+        /// </param>
+        /// <param name="context">Contexto de la llamada gRPC.</param>
+        /// <returns>
+        /// Objeto con los datos de la orden actualizada.
+        /// </returns>
+        public override async Task<ChangeOrderStateResponse> ChangeOrderState(ChangeOrderStateRequest request, ServerCallContext context)
         {
             try
             {
@@ -147,7 +187,6 @@ namespace OrderService.src.Service
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Estado inválido. Valores permitidos: Pendiente, En Procesamiento, Enviado, Entregado"));
                 }
 
-
                 var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(request.Identifier);
 
                 var requestDto = new ChangeStateDto
@@ -156,12 +195,9 @@ namespace OrderService.src.Service
                     TrackingNumber = request.TrackingNumber
                 };
 
-
                 var result = await _orderRepository.ChangeStateOrder(OrderId, OrderNumber, requestDto);
 
                 return ProtoMappers.ToChangeOrderStateProtoResponse(result);
-
-
             }
             catch (Exception e)
             {
@@ -170,7 +206,18 @@ namespace OrderService.src.Service
             }
         }
 
-        // Cancelar orden
+        /// <summary>
+        /// Cancela una orden existente utilizando su identificador.
+        /// </summary>
+        /// <param name="request">
+        /// Solicitud que contiene el identificador de la orden a cancelar.
+        /// </param>
+        /// <param name="context">
+        /// Contexto de la llamada gRPC.
+        /// </param>
+        /// <returns>
+        /// Objeto con la información de la orden cancelada.
+        /// </returns>
         public override async Task<CancelOrderResponse> CancelOrder(CancelOrderRequest request, ServerCallContext context)
         {
             try
@@ -193,7 +240,18 @@ namespace OrderService.src.Service
             }
         }
 
-        //Obtener historico de pedidos de un usuario con filtos (usuarios)
+        /// <summary>
+        /// Obtiene el historial de ordenes de un usuario con la posibilidad de aplicar filtros.
+        /// </summary>
+        /// <param name="request">
+        /// Solicitud que contiene el Id del usuario y los filtros opcionales.
+        /// </param>
+        /// <param name="context">
+        /// Contexto de la llamada gRPC.
+        /// </param>
+        /// <returns>
+        /// Objeto con la lista de órdenes del usuario.
+        /// </returns>
         public override async Task<GetUserOrdersResponse> GetUserOrders(GetUserOrdersRequest request, ServerCallContext context)
         {
             try
@@ -222,15 +280,26 @@ namespace OrderService.src.Service
 
                 return ProtoMappers.ToGetUserOrdersProtoResponse(orders);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogError(e, "Error al obtener pedidos ");
                 throw new RpcException(new Status(StatusCode.Internal, e.Message));
             }
-            
+
         }
-        
-        //Obtener historico de pedidos de todos los usuarios con filtros (Admins)
+
+        /// <summary>
+        /// Obtiene el historial de ordenes de todos los usuarios con filtros aplicables (Admin).
+        /// </summary>
+        /// <param name="request">
+        /// Solicitud con filtros opcionales como identificador de usuario, nombre, fechas o número de orden.
+        /// </param>
+        /// <param name="context">
+        /// Contexto de la llamada gRPC.
+        /// </param>
+        /// <returns>
+        /// Objeto con la lista de ordenes filtrados.
+        /// </returns>
         public override async Task<GetAdminOrdersResponse> GetAdminOrders(GetAdminOrdersRequest request, ServerCallContext context)
         {
             try
@@ -247,9 +316,7 @@ namespace OrderService.src.Service
                     userName = request.UserIdentifier;
                 }
 
-
                 var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(request.OrderIdentifier);
-
 
                 DateOnly? initialDate = null;
                 if (!string.IsNullOrWhiteSpace(request.InitialDate))
@@ -262,7 +329,7 @@ namespace OrderService.src.Service
                 {
                     finishDate = DateOnly.Parse(request.FinishDate);
                 }
-                
+
                 var orders = await _orderRepository.GetAllOrdersAdmin(userId, userName, OrderId, OrderNumber, initialDate, finishDate);
 
                 return ProtoMappers.ToGetAdminOrdersProtoResponse(orders);
@@ -273,7 +340,6 @@ namespace OrderService.src.Service
                 throw new RpcException(new Status(StatusCode.Internal, e.Message));
             }
         }
-
-        
     }
+
 }

@@ -11,70 +11,81 @@ using OrderService.src.Service;
 using Scalar.AspNetCore;
 
 
+/// <summary>
+/// Punto de entrada principal de la aplicación. 
+/// Configura los servicios, la base de datos, RabbitMQ y los endpoints gRPC y HTTP.
+/// </summary>
+
+
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+/// <summary>
+/// Configura el servidor Kestrel para escuchar en el puerto 5206 con protocolo HTTP/2.
+/// </summary>
 builder.WebHost.ConfigureKestrel(options =>
 {
-    
     options.ListenLocalhost(5206, listenOptions =>
     {
         listenOptions.Protocols = HttpProtocols.Http2; 
-
     });
 });
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+/// <summary>
+/// Agrega servicios al contenedor, incluyendo controladores y soporte OpenAPI.
+/// </summary>
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
+/// <summary>
+/// Obtiene la cadena de conexion de RabbitMQ desde las variables de entorno.
+/// Lanza una excepcion si no se encuentra.
+/// </summary>
 var RabbitMQConnectionString = Environment.GetEnvironmentVariable("RabbitMQConnectionString") ?? throw new InvalidOperationException("RabbitMQConnectionString no encontrado.");
 
+/// <summary>
+/// Configura MassTransit con RabbitMQ y registra el consumidor StockValidationConsumer.
+/// </summary>
 builder.Services.AddMassTransit(x =>
 {
-    // Registrar todos los consumers
-    x.AddConsumer<CreateOrderConsumer>();
     x.AddConsumer<StockValidationConsumer>();
 
-    // Configuración de RabbitMQ
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host(RabbitMQConnectionString);
-
-        // Cola para el consumer de prueba
-        cfg.ReceiveEndpoint("order_products", e =>
-        {
-            //Consumer de prueba para verficiar que se envio el mensaje
-            e.ConfigureConsumer<CreateOrderConsumer>(context);
-
-        });
 
         cfg.ReceiveEndpoint("stock_validation", e =>
         {
             e.ConfigureConsumer<StockValidationConsumer>(context);
         });
-
-
     });
 });
 
-
-
+/// <summary>
+/// Configura la conexion a la base de datos MySQL utilizando la cadena de conexión
+/// obtenida desde las variables de entorno.
+/// </summary>
 string ConnectionString = Environment.GetEnvironmentVariable("OrderConnectionString") ?? throw new InvalidOperationException("OrderConnectionString no encontrado.");
 builder.Services.AddDbContext<DBContext>(options => options.UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString)));
 
+/// <summary>
+/// Registra las dependencias de la aplicacion, incluyendo el repositorio de ordenes.
+/// </summary>
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
+/// <summary>
+/// Agrega soporte para servicios gRPC y su reflexión.
+/// </summary>
 builder.Services.AddGrpc();
-
 builder.Services.AddGrpcReflection();
-
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+/// <summary>
+/// Configura el pipeline de la aplicacion en entorno de desarrollo,
+/// habilitando documentación OpenAPI, referencia Scalar y reflexión gRPC.
+/// </summary>
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -82,15 +93,24 @@ if (app.Environment.IsDevelopment())
     app.MapGrpcReflectionService();
 }
 
+/// <summary>
+/// Aplica migraciones pendientes a la base de datos al iniciar la aplicación.
+/// </summary>
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<DBContext>();
     await context.Database.MigrateAsync();
-
 }
 
+/// <summary>
+/// Configura los endpoints HTTPS, controladores y servicios gRPC.
+/// </summary>
 app.UseHttpsRedirection();
 app.MapControllers(); 
 app.MapGrpcService<OrderGrpcService>();
+
+/// <summary>
+/// Inicia la aplicación.
+/// </summary>
 app.Run();

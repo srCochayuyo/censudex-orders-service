@@ -7,8 +7,22 @@ using OrderService.src.Models;
 
 namespace OrderService.src.Mappers
 {
+    /// <summary>
+    /// Clase para mapear la entidad Order a DTOs
+    /// Proporciona metodos de extension para conversion de objetos
+    /// </summary>
     public static class OrderMappers
     {
+        /// <summary>
+        /// Convierte una entidad Order a un DTO de respuesta
+        /// Metodo de extension que mapea todos los campos de la entidad al DTO.
+        /// </summary>
+        /// <param name="order">
+        /// Entidad order a mapear.
+        /// </param>
+        /// <returns>
+        /// Dto de respuesta con los datos de order.
+        /// </returns>
         public static ResponseCreateOrderDto ToCreateOrderResponse(this Order order)
         {
             return new ResponseCreateOrderDto
@@ -18,13 +32,22 @@ namespace OrderService.src.Mappers
                 OrderNumber = order.OrderNumber,
                 Address = order.Address,
                 OrderStatus = order.OrderStatus,
-                TrackingNumber = order.TrackingNumber,
                 CreateAt = order.CreateAt,
                 TotalPrice = order.TotalPrice,
                 Items = order.Items
             };
         }
 
+        /// <summary>
+        /// Convierte una entidad Order a un DTO de respuesta
+        /// Metodo de extension que mapea todos los campos de la entidad al DTO.
+        /// </summary>
+        /// <param name="order">
+        /// Entidad order a mapear.
+        /// </param>
+        /// <returns>
+        /// Dto de respuesta con los datos de order.
+        /// </returns>
         public static ResponseChangeStateDto ToChangeStateResponse(this Order order)
         {
             return new ResponseChangeStateDto
@@ -39,6 +62,16 @@ namespace OrderService.src.Mappers
             };
         }
 
+        /// <summary>
+        /// Convierte una entidad Order a un DTO de respuesta
+        /// Metodo de extension que mapea todos los campos de la entidad al DTO.
+        /// </summary>
+        /// <param name="order">
+        /// Entidad order a mapear.
+        /// </param>
+        /// <returns>
+        /// Dto de respuesta con los datos de order.
+        /// </returns>
         public static ResponseOrderStateDto ToOrderStateResponse(this Order order)
         {
             return new ResponseOrderStateDto
@@ -50,6 +83,16 @@ namespace OrderService.src.Mappers
             };
         }
 
+        /// <summary>
+        /// Convierte una entidad Order a un DTO de respuesta
+        /// Metodo de extension que mapea todos los campos de la entidad al DTO.
+        /// </summary>
+        /// <param name="order">
+        /// Entidad order a mapear.
+        /// </param>
+        /// <returns>
+        /// Dto de respuesta con los datos de order.
+        /// </returns>
         public static ResponseGetOrderUserDto ToGetOrderUserResponse(this Order order)
         {
             return new ResponseGetOrderUserDto
@@ -72,6 +115,16 @@ namespace OrderService.src.Mappers
             };
         }
         
+        /// <summary>
+        /// Convierte una entidad Order a un DTO de respuesta
+        /// Metodo de extension que mapea todos los campos de la entidad al DTO.
+        /// </summary>
+        /// <param name="order">
+        /// Entidad order a mapear.
+        /// </param>
+        /// <returns>
+        /// Dto de respuesta con los datos de order.
+        /// </returns>
         public static ResponseGetOrderAdminDto ToGetOrdersResponse(this Order order)
         {
             return new ResponseGetOrderAdminDto
