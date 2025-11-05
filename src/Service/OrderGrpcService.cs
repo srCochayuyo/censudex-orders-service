@@ -21,6 +21,8 @@ namespace OrderService.src.Service
     public class OrderGrpcService : Grpc.OrderService.OrderServiceBase
     {
         private readonly IOrderRepository _orderRepository;
+
+        private SendGridService _sendGrid;
         private readonly ILogger<OrderGrpcService> _logger;
 
         /// <summary>
@@ -33,9 +35,10 @@ namespace OrderService.src.Service
         /// <param name="logger">
         /// Instancia de logger para registrar información y errores.
         /// </param>
-        public OrderGrpcService(IOrderRepository orderRepository, ILogger<OrderGrpcService> logger)
+        public OrderGrpcService(IOrderRepository orderRepository,SendGridService sendGrid, ILogger<OrderGrpcService> logger)
         {
             _orderRepository = orderRepository;
+            _sendGrid = sendGrid;
             _logger = logger;
         }
 
@@ -112,6 +115,9 @@ namespace OrderService.src.Service
 
                 var result = await _orderRepository.CreateOrder(createOrderRequest);
 
+                //Enviarnotificacion
+                await _sendGrid.SendCreateOrderEmail(request.UserEmail, result.OrderNumber, result.UserName, result.TotalPrice);
+
                 return ProtoMappers.ToCreateOrderProtoResponse(result);
 
             }
@@ -171,6 +177,7 @@ namespace OrderService.src.Service
         {
             try
             {
+                
                 if (string.IsNullOrWhiteSpace(request.Identifier))
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, " Error Identifier requerido"));
@@ -187,6 +194,16 @@ namespace OrderService.src.Service
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Error. Estado inválido. Valores permitidos: Pendiente, En Procesamiento, Enviado, Entregado"));
                 }
 
+                if (string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() == "enviado")
+                {
+                    throw new Exception("Error: El numero de seguimiento es requerido para cambiar el estado a Enviado");
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() != "enviado")
+                {
+                    throw new Exception("Error: El número de seguimiento solo puede asignarse cuando el estado es Enviado.");
+                }
+
                 var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(request.Identifier);
 
                 var requestDto = new ChangeStateDto
@@ -196,6 +213,9 @@ namespace OrderService.src.Service
                 };
 
                 var result = await _orderRepository.ChangeStateOrder(OrderId, OrderNumber, requestDto);
+
+                //Enviar notificacion
+                await _sendGrid.SendchangeStateEmail(request.UserEmail, result.OrderNumber, request.OrderStatus,request.TrackingNumber);
 
                 return ProtoMappers.ToChangeOrderStateProtoResponse(result);
             }
@@ -230,6 +250,9 @@ namespace OrderService.src.Service
                 var (OrderId, OrderNumber) = OrderHelpers.ParseOrderIdentifier(request.Identifier);
 
                 var result = await _orderRepository.CancelateOrder(OrderId, OrderNumber);
+
+                //Enviar notificacion
+                await _sendGrid.SendCancelOrderEmail(request.UserEmail,result.OrderNumber,request.Reason);
 
                 return ProtoMappers.ToCancelOrderProtoResponse(result);
             }

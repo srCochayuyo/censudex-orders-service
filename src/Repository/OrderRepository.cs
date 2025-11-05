@@ -160,16 +160,6 @@ namespace OrderService.src.Repository
                 throw new Exception("Error: Pedido no encontrado");
             }
 
-            if (string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() == "enviado")
-            {
-                throw new Exception("Error: El numero de seguimiento es requerido para cambiar el estado a Enviado");
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.TrackingNumber) && request.OrderStatus.ToLower() != "enviado")
-            {
-                throw new Exception("Error: El número de seguimiento solo puede asignarse cuando el estado es Enviado.");
-            }
-
             if (!string.IsNullOrWhiteSpace(request.TrackingNumber))
             {
                 orderRequest.TrackingNumber = request.TrackingNumber;
@@ -205,7 +195,6 @@ namespace OrderService.src.Repository
             {
                 throw new Exception("Error: Pedido no encontrado");
             }
-
             if (orderRequest.OrderStatus == "Cancelado")
             {
                 throw new Exception("Error: Pedido ya cancelado");
@@ -214,6 +203,11 @@ namespace OrderService.src.Repository
             if (orderRequest.OrderStatus == "Enviado")
             {
                 throw new Exception("Error: No es posible cancelar el pedido porque ya fue enviado.");
+            }
+            
+            if (orderRequest.OrderStatus == "Entregado" )
+            {
+                throw new Exception("Error: No es posible cancelar el pedido porque ya fue entregado.");
             }
 
             orderRequest.OrderStatus = "Cancelado";

@@ -52,6 +52,7 @@ message CreateOrderRequest
     string user_name = 2;      // Nombre del usuario.
     string address = 3;        // Direccion de envio de la orden.
     repeated OrderItemRequest items = 4; // Lista de productos.
+    string UserEmail = 5; //Email de usuario
 }
 
 /// <summary>
@@ -81,6 +82,7 @@ message ChangeOrderStateRequest
     string identifier = 1;       // Identificador unico o numero de orden.
     string order_status = 2;     // Nuevo estado.
     string tracking_number = 3;  // Numero de seguimiento, si aplica.
+    string UserEmail = 4; //Email de usuario
 }
 
 /// <summary>
@@ -89,6 +91,8 @@ message ChangeOrderStateRequest
 message CancelOrderRequest
 {
     string identifier = 1; // Identificador unico o numero de orden a cancelar.
+    string UserEmail = 2; //Email de usuario
+    string reason = 3;   // Razon de cancelamiento, si aplica
 }
 
 /// <summary>

@@ -45,6 +45,13 @@ builder.Services.AddControllers();
 var RabbitMQConnectionString = Environment.GetEnvironmentVariable("RabbitMQConnectionString") ?? throw new InvalidOperationException("RabbitMQConnectionString no encontrado.");
 
 /// <summary>
+/// Registra el sendGrid como un servicio singleton en el contenedor de dependencias.
+/// Esto garantiza que se use una unica instancia de sendGrid durante toda la vida util de la aplicacion.
+/// </summary>
+builder.Services.AddSingleton<SendGridService>();
+
+
+/// <summary>
 /// Configura MassTransit con RabbitMQ y registra el consumidor StockValidationConsumer.
 /// </summary>
 builder.Services.AddMassTransit(x =>
