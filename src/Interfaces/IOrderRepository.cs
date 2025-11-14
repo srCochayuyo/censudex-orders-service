@@ -144,5 +144,16 @@ namespace OrderService.src.Interfaces
         /// </returns>
         public Task<string> GetUserEmail(Guid? OrderId, string? OrderNumber);
 
+        /// <summary>
+        /// Obtiener el numero de orden mediante el id de orden.
+        /// </summary>
+        /// <param name="OrderId">
+        /// Identificador unico de orden.
+        /// </param>
+        /// <returns>
+        /// Numero de orden.
+        /// </returns>
+        public Task<string> GetOrderNumber(Guid? OrderId);
+
     }
 }

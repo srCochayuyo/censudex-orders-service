@@ -66,6 +66,10 @@ namespace OrderService.src.Consumers
 
             var totalItems = await _orderRepository.CountItemsOrderById(message.OrderId);
 
+            var userEmail = await _orderRepository.GetUserEmail(message.OrderId,null);
+
+            var orderNumber = await _orderRepository.GetOrderNumber(message.OrderId);
+
             var state = _validations.GetOrAdd(message.OrderId, new ValidationState { Total = totalItems });
 
             if (!message.ValidationResult)
@@ -73,8 +77,7 @@ namespace OrderService.src.Consumers
                 string reason = "No contamos con el stock suficiente de algunos de tus productos 😞";
                 await _orderRepository.CancelateOrder(message.OrderId, null);
 
-                var userEmail = await _orderRepository.GetUserEmail(message.OrderId,null);
-                await _sendGrid.SendCancelOrderEmail(userEmail,message.OrderId.ToString(),reason);
+                await _sendGrid.SendCancelOrderEmail(userEmail,orderNumber,reason);
                 
                 Console.WriteLine($"[RabbitMQ] Orden cancelada por stock insuficiente");
                 _validations.TryRemove(message.OrderId, out _);
@@ -88,12 +91,14 @@ namespace OrderService.src.Consumers
             if (validated == totalItems)
             {
 
+                string newState = "En Procesamiento";
                 var stateDto = new ChangeStateDto
                 {
                     OrderStatus = "En Procesamiento",
                 };
 
                 await _orderRepository.ChangeStateOrder(message.OrderId, null, stateDto);
+                await _sendGrid.SendchangeStateEmail(userEmail,orderNumber,newState,null);
                 Console.WriteLine($"[RabbitMQ] Validacion de stock exitosa");
                 _validations.TryRemove(message.OrderId, out _);
 

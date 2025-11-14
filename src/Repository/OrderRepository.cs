@@ -334,6 +334,27 @@ namespace OrderService.src.Repository
             return orderRequest.UserEmail;
         }
 
+        /// <summary>
+        /// Obtiener el numero de orden mediante el id de orden.
+        /// </summary>
+        /// <param name="OrderId">
+        /// Identificador unico de orden.
+        /// </param>
+        /// <returns>
+        /// Numero de orden.
+        /// </returns>
+        public async Task<string> GetOrderNumber(Guid? OrderId)
+        {
+            var orderRequest = await GetOrderByIdOrOrderNumber(OrderId, null);
+
+            if (orderRequest == null)
+            {
+                throw new Exception("Error: Orden no encontrada");
+            }
+
+            return orderRequest.OrderNumber;
+        }
+
 
         /// <summary>
         /// Metodo para contar la cantidad de productos de una orden.
