@@ -131,5 +131,7 @@ namespace OrderService.src.Interfaces
         /// </returns>
         public Task<int> CountItemsOrderById(Guid Id);
 
+        public Task<string> GetUserEmail(Guid? OrderId, string? OrderNumber);
+
     }
 }

@@ -7,6 +7,7 @@ using MassTransit;
 using OrderService.src.Dto;
 using OrderService.src.Interfaces;
 using OrderService.src.Messages;
+using OrderService.src.Service;
 
 namespace OrderService.src.Consumers
 {
@@ -26,6 +27,8 @@ namespace OrderService.src.Consumers
         /// </summary>
         private readonly IOrderRepository _orderRepository;
 
+        private SendGridService _sendGrid;
+        
         /// <summary>
         /// Diccionario concurrente que mantiene el estado de validación (por OrderId) mientras
         /// llegan las respuestas parciales de validacion de stock.
@@ -36,9 +39,10 @@ namespace OrderService.src.Consumers
         /// Inicializa una nueva instancia de <see cref="StockValidationConsumer"/>.
         /// </summary>
         /// <param name="orderRepository">Repositorio de ordenes inyectado para realizar operaciones sobre las ordenes.</param>
-        public StockValidationConsumer(IOrderRepository orderRepository)
+        public StockValidationConsumer(IOrderRepository orderRepository,SendGridService sendGrid)
         {
             _orderRepository = orderRepository;
+            _sendGrid = sendGrid;
         }
 
         /// <summary>
@@ -66,7 +70,12 @@ namespace OrderService.src.Consumers
 
             if (!message.ValidationResult)
             {
+                string reason = "No contamos con el stock suficiente de algunos de tus productos 😞";
                 await _orderRepository.CancelateOrder(message.OrderId, null);
+
+                var userEmail = await _orderRepository.GetUserEmail(message.OrderId,null);
+                await _sendGrid.SendCancelOrderEmail(userEmail,message.OrderId.ToString(),reason);
+                
                 Console.WriteLine($"[RabbitMQ] Orden cancelada por stock insuficiente");
                 _validations.TryRemove(message.OrderId, out _);
                 return;

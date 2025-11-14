@@ -29,7 +29,7 @@ namespace OrderService.src.Service
         /// <exception>
         /// Se lanza si la API Key de SendGrid no está configurada.
         /// </exception>
-        public SendGridService(IConfiguration configuration)
+        public SendGridService()
         {
             _apiKey = Environment.GetEnvironmentVariable("API_KEY_SENDGRID") ?? throw new InvalidOperationException("SendGrid APIKEY no encontrado.");
         }

@@ -103,6 +103,7 @@ namespace OrderService.src.Service
                 {
                     UserId = Guid.Parse(request.UserId),
                     UserName = request.UserName,
+                    UserEmail = request.UserEmail,
                     Address = request.Address,
                     Items = request.Items.Select(i => new CreateOrderItemDto
                     {
@@ -214,8 +215,10 @@ namespace OrderService.src.Service
 
                 var result = await _orderRepository.ChangeStateOrder(OrderId, OrderNumber, requestDto);
 
+                var userEmail = await _orderRepository.GetUserEmail(OrderId,OrderNumber);
+
                 //Enviar notificacion
-                await _sendGrid.SendchangeStateEmail(request.UserEmail, result.OrderNumber, request.OrderStatus,request.TrackingNumber);
+                await _sendGrid.SendchangeStateEmail(userEmail, result.OrderNumber, request.OrderStatus,request.TrackingNumber);
 
                 return ProtoMappers.ToChangeOrderStateProtoResponse(result);
             }
@@ -251,8 +254,10 @@ namespace OrderService.src.Service
 
                 var result = await _orderRepository.CancelateOrder(OrderId, OrderNumber);
 
+                var userEmail = await _orderRepository.GetUserEmail(OrderId,OrderNumber);
+
                 //Enviar notificacion
-                await _sendGrid.SendCancelOrderEmail(request.UserEmail,result.OrderNumber,request.Reason);
+                await _sendGrid.SendCancelOrderEmail(userEmail,result.OrderNumber,request.Reason);
 
                 return ProtoMappers.ToCancelOrderProtoResponse(result);
             }

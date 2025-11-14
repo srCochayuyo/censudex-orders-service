@@ -49,6 +49,10 @@ namespace OrderService.src.Data.Migrations
                     b.Property<DateOnly?>("UpdateAt")
                         .HasColumnType("date");
 
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
 

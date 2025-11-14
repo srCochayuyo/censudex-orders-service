@@ -138,7 +138,7 @@ namespace OrderService.src.Mappers
                 OrderStatus = order.OrderStatus,
                 CreateAt = order.CreateAt,
                 UpdateAt = order.UpdateAt,
-                Items = order.Items
+                Items = order.Items,
             };
         }
     }

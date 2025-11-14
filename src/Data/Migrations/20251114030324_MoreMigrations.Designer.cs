@@ -12,8 +12,8 @@ using OrderService.src.Data;
 namespace OrderService.src.Data.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20251028024854_Migrations")]
-    partial class Migrations
+    [Migration("20251114030324_MoreMigrations")]
+    partial class MoreMigrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,6 +51,10 @@ namespace OrderService.src.Data.Migrations
 
                     b.Property<DateOnly?>("UpdateAt")
                         .HasColumnType("date");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");

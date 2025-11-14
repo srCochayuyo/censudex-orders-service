@@ -57,6 +57,7 @@ namespace OrderService.src.Repository
             {
                 UserId = request.UserId,
                 UserName = request.UserName,
+                UserEmail = request.UserEmail,
                 OrderNumber = CreateOrderNumber(),
                 Address = request.Address,
                 OrderStatus = "Pendiente",
@@ -309,6 +310,19 @@ namespace OrderService.src.Repository
 
             return Orders;
         }
+
+        public async Task<string> GetUserEmail(Guid? OrderId, string? OrderNumber)
+        {
+            var orderRequest = await GetOrderByIdOrOrderNumber(OrderId, OrderNumber);
+
+            if (orderRequest == null)
+            {
+                throw new Exception("Error: Email no encontrado");
+            }
+
+            return orderRequest.UserEmail;
+        }
+
 
         /// <summary>
         /// Metodo para contar la cantidad de productos de una orden.
