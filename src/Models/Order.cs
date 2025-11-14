@@ -30,6 +30,10 @@ namespace OrderService.src.Models
         /// </summary>
         public string UserName { get; set; } = string.Empty!;
 
+        /// <summary>
+        /// Correo electronico del usuario.
+        /// </summary>
+
         public string UserEmail {get;set;} = string.Empty!;
         /// <summary>
         /// Numero de orden.

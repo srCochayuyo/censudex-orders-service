@@ -21,6 +21,9 @@ namespace OrderService.src.Dto
         /// </summary>
         public string UserName { get; set; } = string.Empty!;
 
+        /// <summary>
+        /// correo electronico Cliente (Usuario).
+        /// </summary>
         public string UserEmail { get; set; } = string.Empty!;
 
         /// <summary>

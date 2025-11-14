@@ -131,6 +131,17 @@ namespace OrderService.src.Interfaces
         /// </returns>
         public Task<int> CountItemsOrderById(Guid Id);
 
+        /// <summary>
+        /// Obtiene el email del usuario ligado a la orden utilizando el id de orden o numero de orden.
+        /// </summary>
+        /// <param name="OrderId">
+        /// Identificador unico de la orden.
+        /// </param>
+        /// <param name="OrderNumber">
+        /// Número de la orden.
+        /// <returns>
+        /// El Email del usuario
+        /// </returns>
         public Task<string> GetUserEmail(Guid? OrderId, string? OrderNumber);
 
     }
